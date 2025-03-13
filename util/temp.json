@@ -1,0 +1,1922 @@
+[
+  {
+    "id": "vqa_4_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/gongcheng.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是红方2号工程机器人正在使用机械臂进行兑换矿石操作。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_6_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/1657876620674.jpeg"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是4号平衡步兵机器人正在进行射击。操作"
+      }
+    ]
+  },
+  {
+    "id": "vqa_7_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/1657876665202.jpeg"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中英雄机器人似乎正在瞄准某个目标，可能正在击打前哨站。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_8_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/1657876703338.jpeg"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中的一号英雄机器人正在发射大弹丸，根据背景推测，其应该正在攻击红方基地。旁边的3号步兵应该也在攻击红方基地。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_9_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/1657876890649.jpeg"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中从上到下，从左到右依次是，红方老式哨兵机器人，红方无人机，红方4号步兵机器人，蓝方2号工程机器人，红方2号工程机器人，蓝方1号英雄机器人，蓝方4号步兵机器人。右下角还有robomaster机甲大师的标志。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_10_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/2022-07-14-20-19-27.508.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中从左到右依次展示的是红方3号步兵机器人，红方前哨站，红方4号步兵机器人，红方老式哨兵，红方无人机"
+      }
+    ]
+  },
+  {
+    "id": "vqa_11_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/2022-07-29-15-57-11.620.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从蓝色血量条可以看出该机器人血量不多，接下来可能会被击毁。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_12_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240425_204700.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中蓝方三号步兵机器人正在蓝方前哨站前，应该正瞄准其他车辆。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_13_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240425_215847.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "根据背景，图中机器人应该位于前哨站前的位置，其应该在攻击红方前哨站。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_14_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_130313.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "根据轨迹由淡到浓，可以看到红方英雄停在环形高低左侧瞄准蓝方前哨站，红方5号步兵似乎也在瞄准蓝方前哨，哨兵机器人守在矿石兑换区前，而蓝方5号和4号步兵机器人正在快速前往红方基地区前。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_15_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_151147.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中轨迹可以看到哨兵正在向蓝方区域前进，红方5号步兵似乎正在瞄准蓝方步兵，接下来蓝方步兵可能会被击退甚至击毁。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_16_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_153013.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是robomaster比赛场地斜视渲染图，展示了整个roboamster赛场。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_17_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_153032.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是roboamster轴测渲染图，展示了红方为主的整个robomaster 场地"
+      }
+    ]
+  },
+  {
+    "id": "vqa_18_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_153041.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是roboamster赛场俯视图，图中的黑色箭头指向赛场的各个区域。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_19_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_153515.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图片里展示的是robomaster红方半场，绿色的区域是哨兵巡逻区，从上往下分别是，英雄狙击点巡逻区，环形高地巡逻区，基地巡逻区，T型高地巡逻区和能量机关巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_20_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_161445.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是东北大学哨兵哨兵机器人"
+      }
+    ]
+  },
+  {
+    "id": "vqa_21_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_161452.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是东北大学雷达。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_22_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_161457.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是东北大学平衡步兵机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_23_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_161501.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是东北大学2号工程机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_24_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_161511.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是无人机。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_25_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_161515.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是东北大学飞镖机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_27_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_200802.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是roboamster观众视角，上方显示了比赛双方学校以及各个建筑物和兵种的血量。赛场上从左到右从上到下依次是红方英雄机器人，红方步兵机器人，蓝方前哨站，蓝方步兵机器人，蓝方哨兵机器人，红方工程机器人，红方前哨站，蓝方两辆步兵机器人和一辆蓝方工程机器人。右下角是小地图视角，事实反映了赛场情况。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_28_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_201209.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看到双方前哨站都未被摧毁，所以双方哨兵机器人都处于无敌状态，并且蓝方哨兵机器人位于红方，接下来可能会造成其他单位被及击杀。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_29_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_203950.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出，红方前哨站还没有被击毁，并且蓝方集合了所有单位在红方前哨站前，并且英雄也前往英雄狙击点，接下来可能即将进攻前哨站。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_30_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204031.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "根据图中的建筑物情况和单位分布，双方都在尝试进攻对方的前哨站，处于经典的进一方进攻前哨，一方进行防守的情况，这种情况可能会僵持一段时间，直到无人机起飞或者其他改变僵局的情况"
+      }
+    ]
+  },
+  {
+    "id": "vqa_31_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204046.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "接下来红方可能会由于金矿石兑换成功获得一定的金币。用以购买弹药或者呼叫空中支援。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_32_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204117.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是robomaster直播视角，图中上方是比赛双方学校校徽和队伍名称，中间是比赛剩余时间，两侧是双方建筑物血量和机器人血量。画面中央显示红方飞镖命中了蓝方前哨站，造成了750点伤害。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_33_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204144.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中央标志可以看到，红方能量机关已经激活，接下来可能会发起进攻，由于蓝方前哨站尚未被击毁，红方英雄已经在环形高地面向蓝方前哨，接下来红方可能会优先进攻蓝方前哨站。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_34_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204216.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中央标志可以看到，红方能量机关已经激活，接下来可能会发起进攻，由于蓝方前哨站尚未被击毁，红方英雄已经在环形高地面向蓝方前哨，接下来红方可能会优先进攻蓝方前哨站。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_35_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204240.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "红方机器人试图对蓝色方机器人发起进攻，蓝色方两个机器人在环形高地入口处围剿红方机器人"
+      }
+    ]
+  },
+  {
+    "id": "vqa_36_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204324.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "这红方4号机器人会和蓝方5号机器人开枪射击战斗，同时也会遭受到蓝方4号机器人的攻击，红方5号机器人和3号机器人在赶来支援的路上"
+      }
+    ]
+  },
+  {
+    "id": "vqa_37_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204448.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "红方1号英雄正在环形高地上的狙击点对蓝方前哨站发起射击进攻，红方处于无敌状态的自动哨兵在前哨站附近的路上阻拦蓝方的防守，红方3号步兵机器人在配合进攻前哨站"
+      }
+    ]
+  },
+  {
+    "id": "vqa_38_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204631.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是robomaster直播视角，从图中看到蓝方3号步兵正在遭到红方4号和红方哨兵攻击，同时蓝方3号和4号步兵正在赶来。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_39_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204637.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出，蓝方前哨站已经被击破，并且蓝方步兵都集中在红方前哨站，接下来可能是蓝方的进攻时间，红方将防守自身前哨站，直到下次能够主动进攻。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_40_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204706.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "可以看到红方英雄机器人正在蓝方环形高地，朝向基地准备攻击，并且蓝方没有形成有效的防守，接下来蓝方基地可能会被攻击然后减少血量。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_41_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204727.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "可以看到红方英雄机器人正在蓝方环形高地，攻击红方机器，并且蓝方没有形成有效的防守，接下来蓝方基地可能会被攻击然后进一步减少血量。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_42_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204747.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出，红方英雄位于蓝方环形高地，并且蓝方基地已经没有护盾，接下来红方可能会继续对蓝方基地进行攻击。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_43_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204823.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出，红方英雄步兵机器人正在蓝方环形高地攻击基地，并且蓝方状态不佳，接下来可能会导致蓝方基地遭受较大伤害。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_44_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_204902.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出，红方的一辆步兵车辆翻倒，无法作战，接下来该步兵机器人将被击毁。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_50_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_211818.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中的机器人可能在进行夹取银矿同时准备兑换银矿的任务。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_52_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_212058.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "根据图片分析，照片中的机器人正在发射子弹进行自卫，远方的一号机器人正在回家补弹，准备发起下一次进攻。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_53_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_221203.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "这张图片看起来是一张轨迹合成图片。看起来红方的工程刚刚完成了对银矿石的夹取并返回兑矿区。同时红方的平衡机器人正在向蓝方基地区突进，但是蓝方也部署了相应的机器人进行阻击。远处，蓝方有工程机器人正在执行兑矿任务，同时还有机器人在对蓝方机器人进行防守。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_54_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_221611.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "根据这张图片分析，蓝方机器人正在己方补给区进行不急，同时蓝方机器人正在进行兑矿任务。红方机器人在己方基地区完成集结后将兑蓝方展开一波猛烈的攻击。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_56_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_221723.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看到，红蓝双方正在已经被击毁的蓝方前哨站前激烈战斗，接下来可能会有一方团灭（大部分步兵被击毁）。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_57_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_222028.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出，蓝方一号英雄机器人和蓝方5号步兵机器人已经击毁红方前哨站，准备前往红方基地，接下来可能会和哨兵发生战斗，并且对红方基地造成伤害。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_58_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_222116.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出，蓝方英雄机器人已经越过哨兵前往基地区，并且蓝方两辆步兵同样前来，接下来红方基地可能会遭到严重打击甚至被击毁。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_60_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_222336.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出，双方前哨站尚未被击毁，图中左方红方英雄正在瞄准蓝方前哨站，红方步兵正在协同，蓝方步兵位于蓝方能量机关激活点反制，同时蓝方英雄位于蓝方英雄狙击点攻击红方前哨站，并且蓝方步兵在蓝方环形高地右侧协同。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_61_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_222454.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出红方能量机关已经激活，并且步兵数量优于蓝方，接下来可能会进攻蓝方基地，但是可以观察到右侧蓝方英雄正在尝试攻击前哨站，如果无人防守可能会导致红方前哨站被击毁。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_63_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_222608.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看到，红蓝双方正在已经被击毁的蓝方前哨站前激烈战斗，接下来可能会有一方团灭（大部分步兵被击毁）。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_64_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240428_225500.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看到，红方一号英雄机器人正在遭到围攻，接下来红方一号英雄可能会被击毁，导致基地被进攻。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_65_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_170131.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出蓝方大量机器人在红方前哨站前，接下来红方前哨站可能会被造成大量伤害，甚至被击毁。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_67_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240427_205241.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是robomaster赛场俯视图，图中绿色的区域是哨兵巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_68_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240429_120939.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是一辆红色四号步兵机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_69_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240429_121734.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是一辆蓝色3号步兵机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_70_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240429_121757.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示中央是红方能量机关，左上方是比赛直播画面，右侧还配有“机甲大师”的标志。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_71_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240429_121842.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中可以看到蓝方三号步兵机器人正在射击红方前哨站，接下来红方前哨站会受到攻击，但是由于前方还有一台红方平衡步兵机器人，接下来可能会击退蓝方步兵机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_72_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240429_122444.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是红方工程机器人。背景位于蓝方前哨站前。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_73_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240429_122517.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "接下来蓝方前哨站可能被攻击，甚至被摧毁。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_74_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240429_122644.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是调试场地的简易前哨站。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_75_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240429_122712.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是红方4号步兵机器人和红方工程机器人，场地位于取矿区附近。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_76_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240429_123325.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中看出蓝方两辆步兵机器人正在攻击红方哨兵机器人，接下来可能会导致红方哨兵机器人被击毁。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_89_3",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/2024-04-29 13-04-02.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中的机器人正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "右上角无人机正在朝红方哨兵攻击。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_90_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/2024-04-29 13-09-11.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是调试场地图像，图中从左到右从上到下依次是，蓝方前哨站，蓝方步兵机器人，蓝方平衡步兵机器人，红方哨兵机器人和红方一号英雄机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_91_2",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/2024-04-29 13-10-39.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>接下来可能发生什么情况？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中画面可以看到，场地位于调试场地，红方英雄机器人准备前往环形高地附近，可能想共计前哨站，同时蓝方两台步兵机器人正位于附近，所以接下来英雄机器人可能遭到攻击。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_92_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/2022-07-14-20-19-27.509.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方前哨站前。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_93_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/2022-07-14-20-19-27.510.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是红方未被摧毁的前哨站。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_94_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240429_121843.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方前哨站前。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_98_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240502_202443.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是调试场地，位于红方环形高地附近。图中从左到右关键元素分别是，阵亡的步兵机器人，能量机关，蓝方前哨站，红方哨兵机器人，红方被摧毁前哨站。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_99_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240502_202459.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是训练场地的场景，未知位于取矿区域附近，从左到右依次是蓝方英雄机器人，红方哨兵机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_100_1",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240502_202559.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这张图片里的是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中展示的是调试场地，位于基地巡逻区，图中关键元素，从左到右依次是，红方哨兵机器人，基地(尚未开启)，蓝方工程机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_101_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/z2024-04-29 13-10-40.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方基地巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_102_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/z2024-04-29 13-10-41.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方环形高地巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_103_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/z2024-04-29 13-10-42.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方T型高地巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_104_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/z2024-04-29 13-10-43.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是蓝方未被摧毁的前哨站。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_105_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/z2024-04-29 13-10-44.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方前哨站前。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_106_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/z2024-04-29 13-10-45.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是红方哨兵机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_107_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/z2024-04-29 13-10-47.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是红方5号步兵机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_108_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240427_153515.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方基地巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_109_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240427_153517.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方英雄吊射巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_110_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240427_153518.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方环形高地巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_111_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240427_153519.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方T型高地巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_112_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240427_153520.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方前哨站前。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_113_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_204145.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>这局比赛你是红方，请问你现在在什么位置？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出，我驾驶的哨兵在蓝方前哨站前。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_114_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_204146.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中蓝方英雄正在做什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以知道蓝方英雄正在补给区补给。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_115_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_204147.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>\n战术安排:1.由于敌方推进前哨过于快，如果主动出击会导致基地护甲展开，所以这次采取保守策略，你需要在我方的巡逻区防止敌方偷袭和进攻。2.这次比赛我方采取吊射英雄策略，请尽可能靠近保护英雄。\n上一次的决策：‘根据小地图信息，为了完成战术，我应该保持之前的策略，继续停留在|我方基地|’\n最新赛场关键信息：我方队伍：蓝 时间:6:34 我方|前哨站血量:400，基地(无敌):5000| 敌方|前哨站血量:1400,基地(无敌):5000|\n上次决策的结果：'解析成功'\n可前往区域：|我方基地||我方环高||我方吊射区||我方前哨||敌方前哨||敌方基地||敌方吊射|"
+      },
+      {
+        "from": "assistant",
+        "value": "根据战术安排采取保守策略，由于我方前哨站血量较低，预计我方前哨站即将被摧毁，敌方哨兵可能进攻，为了保护英雄我应该前往|我方T高|"
+      }
+    ]
+  },
+  {
+    "id": "vqa_116_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_204148.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是蓝方基地巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_117_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_204149.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是未被摧毁的红方前哨站。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_118_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_204150.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是被红方激活的能量机关。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_119_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_204151.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是蓝方英雄吊射巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_120_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_204152.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是蓝方T型高地巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_121_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_204153.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是蓝方环形高地巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_122_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_204727.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是红方英雄机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_123_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_2047271.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是蓝方基地。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_124_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_2047272.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是红方哨兵机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_125_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_2047273.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是蓝方哨兵机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_126_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222029.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方基地巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_127_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222030.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是红方环形高地巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_128_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222031.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是红方前哨站前。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_129_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222032.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是蓝方前哨站前。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_130_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222033.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是红方英雄吊射巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_131_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222034.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是红方哨兵机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_132_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222035.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是红方工程机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_133_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222036.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是蓝方英雄吊射巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_134_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222037.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的区域是蓝方基地巡逻区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_135_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222038.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是蓝方飞坡走道。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_136_7",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222039.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的无人机是否起飞？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以知道无人机依旧位于启动区，尚未起飞、"
+      }
+    ]
+  },
+  {
+    "id": "vqa_137_5",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222040.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的区域是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是金矿石取框区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_138_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240428_222041.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是蓝方步兵机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_139_4",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/zcreenshot_20240429_123325.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中黄色框框选的目标是什么？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中框选的是红方哨兵机器人。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_140_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240516_181103.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>蓝方的4号和1号机器人在什么位置？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出，蓝方4号和一号位于蓝方前哨站附近"
+      }
+    ]
+  },
+  {
+    "id": "vqa_141_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240516_181142.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>假如你是红方，那我们的哨兵在哪个区域？"
+      },
+      {
+        "from": "assistant",
+        "value": "根据图片，我们的哨兵在我方基地区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_142_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240516_181220.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>最新赛场关键信息：我方队伍：红.时间:4:21 我方|哨兵血量:400,前哨站血量:0，基地(无敌解除):4000| 敌方|前哨站血量:0,基地(护甲解除):3000|\n战术安排:1.本局我方采用英雄远程吊射基地策略，请尽量保护我方英雄。2.敌方地面部队很强，我们是防守方，请想办法尽量阻止对面步兵的进攻。\n上一次的决策：‘从图中看出，双方机器人都在己方基地补给，为了完成战术目标，我应该前往|我方基地|伺机而动。’\n上次决策的结果：'解析成功'\n可前往区域：|我方基地||我方环高||我方T高||我方吊射区||我方泉水|"
+      },
+      {
+        "from": "assistant",
+        "value": "从小地图看到，地方3号4号步兵都往我方英雄靠近，为了完成战术保护英雄，我应该前往|我方环高|。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_143_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/map_frames-0-0 (1).png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中红方机器人在哪些区域？"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中感知到的信息可以知道，红方英雄位于吊射区附近，红方工程位于资源岛左侧，红方哨兵位于红方基地区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_146_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/map_frames-0-2.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>最新赛场关键信息：我方队伍：蓝.时间:6:10 我方|哨兵血量:400,前哨站血量:200，基地(无敌):5000| 敌方|前哨站血量:100,基地(无敌):5000|\n战术安排:1.本局我们采用地面推进，英雄推基地的策略，请开局快速前往敌方前哨协助击毁前哨。2.我方步兵强于对面，请在可选择区域内靠近大部队的位置配合击杀。\n上一次的决策：‘从图中可以看出，正在攻击敌方前哨，为了完成战术，我应该继续停留在|敌方前哨|’\n上次决策的结果：'解析成功'\n可前往区域：|我方基地||我方环高||我方T高||我方吊射区||我方泉水||敌方前哨||敌方基地||敌方环高||敌方T高||敌方吊射区|"
+      },
+      {
+        "from": "assistant",
+        "value": "结合赛场信息可以知道，双方都将快速推掉前哨站，我为了不让基地护甲展开，我应该前往|我方基地|。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_150_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/map_frames-0-6.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中蓝方三号步兵在什么位置？"
+      },
+      {
+        "from": "assistant",
+        "value": "图中蓝方三号步兵在红方前哨站前。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_167_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/little_map4.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>图中蓝方英雄在什么位置？"
+      },
+      {
+        "from": "assistant",
+        "value": "根据图片可以知道，蓝方英雄在蓝方基地区。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_175_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/little_map8.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>最新赛场关键信息：我方队伍：红.时间:6:00 我方|哨兵血量:400,前哨站血量:820，基地(无敌):5000| 敌方|前哨站血量:0,基地(无敌解除):5000|\n战术安排:本局主要以进攻为主。1.本局我们采用地面推进，英雄推基地的策略，请开局快速前往敌方前哨协助击毁前哨。2.我方步兵强于对面，请在可选择区域内靠近大部队的位置配合击杀。\n上一次的决策：‘从图中可以看出，比赛刚刚开始，按照战术，我应该继续停留在|敌方前哨|攻击敌方前哨’\n上次决策的结果：'解析成功'\n可前往区域：|我方基地||我方环高||我方T高||我方吊射区||我方泉水||敌方前哨||敌方基地||敌方环高||敌方T高||敌方吊射区|"
+      },
+      {
+        "from": "assistant",
+        "value": "从赛场信息和图片可以知道，敌方前哨已经被摧毁，现在按照战术，我应该攻击敌方英雄，所以我应该前往|敌方吊射区|"
+      }
+    ]
+  },
+  {
+    "id": "vqa_181_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/Screenshot_20240516_182650.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>假如现在你是红方，假设现在位于红方环形高地上的机器人是蓝方英雄，请问你现在去哪个区域比较合适呢？"
+      },
+      {
+        "from": "assistant",
+        "value": "如果位于红方环形高地上的是英雄，那他很可能正在吊射我方基地，我应该前往|我方环高|对他进行攻击。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_184_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/map_frames-0-11.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>最新赛场关键信息：我方队伍：红.时间:3:35 我方|哨兵血量:400,前哨站血量:0，基地(无敌解除):5000| 敌方|前哨站血量:0,基地(无敌解除):4500|\n战术安排:本局主要以进攻为主。1.本局我们采用地面推进，英雄推基地的策略，请开局快速前往敌方前哨协助击毁前哨。2.我方步兵强于对面，请防止对面偷家，为正面战场创建机会 3.地方无法飞坡，所以我方吊射点比较安全\n上一次的决策：‘从图中可以看出双方正在场地中央混战，由于我不能出巡逻区，我只能尽量保证自己安全，所以应该前往|我方吊射区|。’\n上次决策的结果：'解析成功'\n可前往区域：|我方基地||我方环高||我方T高||我方吊射区||我方泉水|"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出，敌方英雄似乎正在往我方基地靠近，为了保护基地，我应该前往|我方基地|。"
+      }
+    ]
+  },
+  {
+    "id": "vqa_185_8",
+    "image": [
+      "/home/iiap/datasets/internlm_data/VQA/map_frames-0-12.png"
+    ],
+    "conversations": [
+      {
+        "from": "user",
+        "value": "<ImageHere>\n最新赛场关键信息：我方队伍：红.时间:3:35 我方|哨兵血量:400,前哨站血量:0，基地(无敌解除):5000| 敌方|前哨站血量:0,基地(无敌解除):4500|\n战术安排:本局主要以进攻为主。1.本局我们采用地面推进，英雄推基地的策略，请开局快速前往敌方前哨协助击毁前哨。2.我方步兵强于对面，请防止对面偷家，为正面战场创建机会 3.地方无法飞坡，所以我方吊射点比较安全\n上一次的决策：‘从图中可以看出双方正在场地中央混战，由于我不能出巡逻区，我只能尽量保证自己安全，所以应该前往|我方吊射区|。’\n上次决策的结果：'解析成功'\n可前往区域：|我方基地||我方环高||我方T高||我方吊射区||我方泉水|"
+      },
+      {
+        "from": "assistant",
+        "value": "从图中可以看出，敌方英雄似乎正在往我方基地靠近，为了保护基地，我应该前往|我方基地|。"
+      }
+    ]
+  }
+]
