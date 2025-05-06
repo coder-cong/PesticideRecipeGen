@@ -1,0 +1,1177 @@
+ 
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html style="overflow-x:auto;overflow-y:auto;">
+<head>
+	<title>农药登记数据查询</title>
+
+ 
+
+ 
+ 
+
+
+
+
+ 
+ 
+
+
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="Pragma" content="no-cache" />
+
+
+
+
+
+<script type="text/javascript">
+<!--
+	var _CTXPATH = '/BasicdataSystem';
+	var _SESSIONID = '0DD8BC77E0C3E68D847D652D4713F4F6';
+//-->
+</script>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-core/jquery-100.0.0.min.js" ></script>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-layout/jquery.layout-latest.min.js" ></script>
+
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/jquery-layout/layout-default-latest.css" />
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/css/themes/base/jquery.ui.all.css" />
+<link rel="stylesheet" href="/BasicdataSystem/lib/css/form-table.css">
+
+<script type="text/javascript" src="/BasicdataSystem/lib/js/common/utils.js?v=2" ></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/js/common/json2.js" ></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/js/common/MyUtils.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/js/accounting.js" ></script>
+
+<script src="/BasicdataSystem/lib/js/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/webuploader-0.1.5/webuploader.js" ></script>
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/webuploader-0.1.5/webuploader.css" />
+
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-ztree35/jquery.ztree.all.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/jquery-ztree35/zTreeStyle/zTreeStyle.css"/>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/validatorEngine/jquery.validationEngine-cn.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/validatorEngine/jquery.validationEngine.js"></script>
+<link rel="stylesheet" href="/BasicdataSystem/lib/plugins/validatorEngine/template.css" />
+<link rel="stylesheet" href="/BasicdataSystem/lib/plugins/validatorEngine/validationEngine.jquery.css" />
+
+
+
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/artdialog/artDialog.source.js?skin=default"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/artdialog/iframeTools.source.js?v=1"></script>
+<link  rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/artdialog/skins/default.css"/>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/tabpanel/TabPanel.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/tabpanel/Fader.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/tabpanel/Math.uuid.js"></script>
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/tabpanel/TabPanel.css">
+
+<link rel="stylesheet" href="/BasicdataSystem/lib/css/ui.multiselect.css">
+<link rel="stylesheet" href="/BasicdataSystem/lib/css/form.css">  
+
+<script type="text/javascript" src="/BasicdataSystem/lib/js/departmentUserSelect/departmentUserSelect.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/My97DatePicker/WdatePicker.js"></script>
+<link href="/BasicdataSystem/lib/plugins/icheck/skins/square/blue.css" rel="stylesheet">
+<script src="/BasicdataSystem/lib/plugins/icheck/icheck.js"></script>
+<link rel="stylesheet" href="/BasicdataSystem/lib/plugins/jquery-ui/jquery-ui.css" /> 
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-ui/jquery-ui.js" ></script>
+
+<style type="text/css">
+.required_label{
+	font-weight:bold;color:blue; 
+}
+.applyTitle{
+	text-align:center; 
+	line-height: 40px;
+	font-size: 24px;
+}
+.Form_position{
+	position: relative;
+}
+table.serch_tbDetail{
+	table-layout:auto !important;
+}
+table.serch_tbDetail td{
+	padding: 2px 4px 2px 5px !important;
+	border: 1px solid #E5E5E5;
+}
+table.serch_tbDetail td.title{
+	background: none;
+}
+table.serch_tbDetail td.tdField label.lblFieldTitle{
+    background: #fff; 
+}
+table.serch_tbDetail td.tdField input{
+	height:20px;
+	line-height:20px;
+	font-size:12px;
+	padding-left: 3px;
+}
+table.ide_Table{
+	table-layout:fixed;
+}
+.TD_title{
+	border: 1px solid #ccc !important;
+	padding: 0 0 0 10px !important;
+	position: inherit !important;
+	background:url("/BasicdataSystem/lib/images/nl2/index/T_title_bg.png") repeat-x !important;
+	color:#005fcb !important;
+	font-size: 14px !important;
+	font-weight: bold !important;
+	
+}
+.TD_title label{
+	text-align:left !important;
+	background: none !important;
+}
+.south-button{
+	padding: 3px 0 !important;
+}
+.anchor_point {
+	position: absolute;
+	top:-90px;
+	right:20px;
+}
+#help{
+	color: red;
+}
+.anchor_point a{
+	width:30px;
+	height:30px;
+	margin-top: 30px;
+	background: url("/BasicdataSystem/image/help.png") no-repeat;
+	display:block;
+}
+</style>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-jqgrid/jquery.jqGrid-latest.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-jqgrid/i18n/grid.locale-cn.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-jqgrid/jqgrid.plugin.js"></script>
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/jquery-jqgrid/ui.jqgrid.css">
+<script type="text/javascript">
+	$.jgrid.no_legacy_api = true;
+	$.jgrid.useJSON = true;
+</script>
+	
+	
+	
+	 
+
+
+
+
+
+
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="author"	content="中国农药信息网"/>
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=8,IE=9,IE=10" />
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-store">
+
+
+
+
+<script src="/BasicdataSystem/pesticideinfonetlib/jquery/jquery-1.8.3.min.js" type="text/javascript"></script>
+<link href="/BasicdataSystem/pesticideinfonetlib/bootstrap/2.3.1/css_united/bootstrap.css" type="text/css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/bootstrap/2.3.1/js/bootstrap.min.js" type="text/javascript"></script>
+<!--<link href="/BasicdataSystem/pesticideinfonetlib/bootstrap/2.3.1/awesome/font-awesome.min.css" type="text/css" rel="stylesheet" /> -->
+<!--[if lte IE 7]><link href="/scripts/bootstrap/2.3.1/awesome/font-awesome-ie7.min.css" type="text/css" rel="stylesheet" /><![endif]-->
+<!--[if lte IE 6]><link href="/scripts/bootstrap/bsie/css/bootstrap-ie6.min.css" type="text/css" rel="stylesheet" />
+<script src="/scripts/bootstrap/bsie/js/bootstrap-ie.min.js" type="text/javascript"></script><![endif]-->
+<link href="/BasicdataSystem/pesticideinfonetlib/jquery-select2/3.4/select2.min.css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/jquery-select2/3.4/select2.min.js" type="text/javascript"></script>
+<link href="/BasicdataSystem/pesticideinfonetlib/jquery-validation/1.11.0/jquery.validate.min.css" type="text/css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/jquery-validation/1.11.0/jquery.validate.min.js" type="text/javascript"></script>
+<link href="/BasicdataSystem/pesticideinfonetlib/jquery-jbox/2.3/Skins/Bootstrap/jbox.min.css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/jquery-jbox/2.3/jquery.jBox-2.3.min.js" type="text/javascript"></script>
+<script src="/BasicdataSystem/pesticideinfonetlib/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
+<script src="/BasicdataSystem/pesticideinfonetlib/common/mustache.min.js" type="text/javascript"></script>
+<link href="/BasicdataSystem/pesticideinfonetlib/common/sintra.min.css" type="text/css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/common/sintra.min.js" type="text/javascript"></script>
+<script type="text/javascript">var ctx = '/BasicdataSystem', ctxStatic='/BasicdataSystem/pesticideinfonetlib';</script>
+	
+<meta name="decorator" content="blank"/>
+	
+	
+	
+	<style>
+		@charset "utf-8";
+		* {margin: 0px;padding: 0px;}
+		body {margin: 0 auto;font-size: 12px;width: 790px; }
+		img {border: none;}
+		a {color: red;text-decoration: none;}
+		a:hover {color: #02376d;text-decoration: underline;}
+		ul {list-style-type: none;padding: 0;margin: 0;}
+		
+		.web_ser_body_right_main_search{text-align:center;width:750px; border:0px solid #c5c5c5;  background-color:#FFF; min-height:448px;}
+		.web_ser_body_right_main_search h1{font-size:15px; font-weight:bold; text-align:center; margin-top:40px; color:#262626;}
+		.web_ser_body_right_main_search h2{margin-top:30px; border-bottom:1px solid #c5c5c5; width:750px; margin-left:20px; margin-bottom:15px;}
+		.web_ser_body_right_main_search .search_table{width:750px; border:1px solid #c5c5c5; margin-left:20px;}
+		.web_ser_body_right_main_search .search_table table{ margin-left:27px; padding-top:25px;margin-top:10px; line-height:20px; text-align:center;}
+		.web_ser_body_right_main_search .search_table table tr td input[type="text"]{width:120px;}
+		.pagination input{width:30px;}
+		.web_ser_body_right_main_search .search_table table tr td p{ font-size:12px; color:#5e5e5e;}
+		.web_ser_body_right_main_search .search_table table tr .t1 select{border:none; height:15px;}
+		.web_ser_body_right_main_search .search_table table tr td #p1{ text-align:left; text-indent:14px;}
+		.web_ser_body_right_main_search .search_table #button1{ margin-left:600px;}
+		.web_ser_body_right_main_search .search_table table tr td{
+			white-space: nowrap;
+			padding: 5px 6px;
+			width:auto;
+		}
+		.web_ser_body_right_main_search .search_table>table tr>td:nth-of-type(even){
+			text-align: left;
+			padding-left: 0;
+		}
+		.web_ser_body_right_main_search .search_table>table tr>td:nth-of-type(odd){
+			text-align:right;
+		}
+
+
+
+		.web_ser_body_right_main_search #tab{ margin-left:40px; margin-top:20px; text-align:center; line-height:28px;}
+		.web_ser_body_right_main_search #tab tr td p{ color:#5e5e5e; font-size:12px; font-weight:bold;}
+		.web_ser_body_right_main_search #tab tr .t1{ border:1px solid #c5c5c5; background:url(/BasicdataSystem/images/queryimg/bg4.png) repeat-x;}
+		.web_ser_body_right_main_search #tab tr .t2{ border-right:1px solid #c5c5c5; background:url(/BasicdataSystem/images/queryimg/bg4.pngss) repeat-x; border-top:1px solid #c5c5c5; border-bottom:1px solid #c5c5c5;  }
+		.web_ser_body_right_main_search #tab tr .t3{border-right:1px solid #c5c5c5;border-left:1px solid #c5c5c5; border-bottom:1px solid #c5c5c5; font-size:12px; color:#5e5e5e;  }
+		.web_ser_body_right_main_search #tab tr .t4{border-right:1px solid #c5c5c5; border-bottom:1px solid #c5c5c5; font-size:12px; color:#5e5e5e;  }
+		.t3 span a{color:#0000FF;}
+		.t4 span a{color:#0000FF;}
+	</style>
+	
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			/**$("#searchForm").validate({
+				rules: {
+					validateCode: {remote: "/BasicdataSystem/servlet/validateCodeServlet"}
+				},
+				messages: {
+					//username: {required: "请填写用户名."},password: {required: "请填写密码."},
+					validateCode: {remote: "验证码不正确.", required: "请填写验证码."}
+				},
+				errorLabelContainer: "#messageBox",
+				errorPlacement: function(error, element) {
+					error.appendTo($("#loginError").parent());
+				} 
+			});**/
+			$(".pagination input").attr("readonly",true);
+			if($("input[name='yxcf']").val()!=""){
+				$("input[name='yxcf_en']").attr("onfocus","this.blur()");
+				$("input[name='yxcf_en']").css("background","#c5c5c5");
+			}
+			else{
+				$("input[name='yxcf_en']").removeAttr("onfocus");
+				$("input[name='yxcf_en']").css("background","white");
+			}
+			if($("input[name='yxcf_en']").val()!=""){
+				$("input[name='yxcf']").attr("onfocus","this.blur()");
+				$("input[name='yxcf']").css("background","#c5c5c5");
+			}
+			else{
+				$("input[name='yxcf']").removeAttr("onfocus");
+				$("input[name='yxcf']").css("background","white");
+			}
+			
+			if($("input[name='yxcf2']").val()!=""){
+				$("input[name='yxcf2_en']").attr("onfocus","this.blur()");
+				$("input[name='yxcf2_en']").css("background","#c5c5c5");
+			}
+			else{
+				$("input[name='yxcf2_en']").removeAttr("onfocus");
+				$("input[name='yxcf2_en']").css("background","white");
+			}
+			if($("input[name='yxcf2_en']").val()!=""){
+				$("input[name='yxcf2']").attr("onfocus","this.blur()");
+				$("input[name='yxcf2']").css("background","#c5c5c5");
+			}
+			else{
+				$("input[name='yxcf2']").removeAttr("onfocus");
+				$("input[name='yxcf2']").css("background","white");
+			}
+			
+			if($("input[name='yxcf3']").val()!=""){
+				$("input[name='yxcf3_en']").attr("onfocus","this.blur()");
+				$("input[name='yxcf3_en']").css("background","#c5c5c5");
+			}
+			else{
+				$("input[name='yxcf3_en']").removeAttr("onfocus");
+				$("input[name='yxcf3_en']").css("background","white");
+			}
+			if($("input[name='yxcf3_en']").val()!=""){
+				$("input[name='yxcf3']").attr("onfocus","this.blur()");
+				$("input[name='yxcf3']").css("background","#c5c5c5");
+			}
+			else{
+				$("input[name='yxcf3']").removeAttr("onfocus");
+				$("input[name='yxcf3']").css("background","white");
+			}
+			
+			
+			if($("input[name='yxcf_en']").val()==""&&$("input[name='yxcf']").val()==""){
+				
+				$("input[name='yxcfhl']").attr("value","");
+				$("input[name='yxcfhl']").attr("onfocus","this.blur()");
+				$("input[name='yxcfhl']").css("background","#c5c5c5");
+			}
+			else{
+				
+				$("input[name='yxcfhl']").attr("value",$("#yxcfhl-1").val());
+				$("input[name='yxcfhl']").removeAttr("onfocus");
+				$("input[name='yxcfhl']").css("background","white");
+			}
+			if($("input[name='yxcf2_en']").val()==""&&$("input[name='yxcf2']").val()==""){
+				
+				$("input[name='yxcf2hl']").attr("value","");
+				$("input[name='yxcf2hl']").attr("onfocus","this.blur()");
+				$("input[name='yxcf2hl']").css("background","#c5c5c5");
+			}
+			else{
+				$("input[name='yxcf2hl']").val($("#yxcfhl-2").val());
+				$("input[name='yxcf2hl']").removeAttr("onfocus");
+				$("input[name='yxcf2hl']").css("background","white");
+			}
+			if($("input[name='yxcf3_en']").val()==""&&$("input[name='yxcf3']").val()==""){
+				
+				$("input[name='yxcf3hl']").attr("value","");
+				$("input[name='yxcf3hl']").attr("onfocus","this.blur()");
+				$("input[name='yxcf3hl']").css("background","#c5c5c5");
+			}
+			else{
+				$("input[name='yxcf3hl']").val($("#yxcfhl-3").val());
+				$("input[name='yxcf3hl']").removeAttr("onfocus");
+				$("input[name='yxcf3hl']").css("background","white");
+			}
+
+			$("#btnReset").click(function (){
+				$("#searhTab").find("input[type=text]").each(function (){
+					this.value = '';
+				})
+				$("#searhTab").find("input[type=checkbox],input[type=radio]").each(function (){
+					if($(this).is(':checked')){
+						$(this).attr('checked', false);
+					}
+				})
+			})
+		});
+	
+	function page(n,s){
+		$("#pageNo").val(n);
+		$("#pageSize").val(s);
+		$("#searchForm").submit();
+    	return false;
+    }
+	function _viewpd(id){       
+		var viewUrl=_CTXPATH + "/pesticideRegistration/viewpd.do?r="+ Math.random()+"&id=" + id;
+	    //	smartWinOpen(viewUrl+"&id=" + id, "登记证详情", 790, 600,null,"yes");
+		$.jBox.open("iframe:"+viewUrl, "登记证详情", 790, 600, {
+			draggable:false,
+			top:'20px',
+			persistent:true, 
+			loaded:function(h){
+                $(".jbox-content", top.document).css("overflow-y","hidden");
+            }
+        });
+	
+	
+	
+	}
+	
+	function _viewcompany(certificateCode){       
+		var viewUrl=_CTXPATH + "/pesticideRegistration/viewcompany.do?r="+ Math.random()+"&certificateCode=" + certificateCode;
+	//	smartWinOpen(viewUrl+"&enterpriseId=" + enterpriseId, "企业详细信息", 790, 600,null,"yes");
+		$.jBox.open("iframe:"+viewUrl, "企业详细信息", 790, 600, {
+			draggable:false,
+			top:'20px',
+			persistent:true, 
+			loaded:function(h){
+                $(".jbox-content", top.document).css("overflow-y","hidden");
+            }
+        });
+	}
+	
+	
+	//function open(obj){
+		
+		//CreatePopLayerDiv(obj,790,700,"加载详细数据","querydetail?pdno="+obj+""); 
+	//}
+	function opencompany(obj,c_id){
+		$.jBox.open("iframe:/companydetail?cid="+obj+"&c_id="+c_id, "生产企业信息", 790, 600, {
+			draggable:false,
+			top:'20px',
+			persistent:true, 
+			loaded:function(h){
+                $(".jbox-content", top.document).css("overflow-y","hidden");
+            }
+        });
+	}
+	//function opencompany(obj){
+		//CreatePopLayerDiv("生产企业信息",790,700,"加载详细数据","companydetail?cid="+obj+""); 
+	//}
+	function CreatePopLayerDiv(title,width,height,content,url){ 
+		var titles = title || "标题"; 
+		
+		var Iheight=$(window).height(); 
+		var Iwidth =$(window).width(); 
+		var heights = height || 300; 
+		var widths = width || 500; 
+		var Oheight= (Iheight -heights) / 2; 
+		var Owidth = (Iwidth - widths) /2; 
+		var contents = content || "内容"; 
+		//var top=$("#tab").height();
+		//alert(top);
+		
+		var div = "<div id='InDiv' style='background-color:#f7f7f5; width:"+Iwidth+"px;height:"+Iheight+"px;position:absolute;z-index:10000;top:60px;left:0;opacity:0.99;'><div onmousedown='$(this,event)' id='offDiv' style='width:"+widths+"px;height:"+heights+"px;left:"+Owidth+"px;top:0px;background-color:#f7f7f5;position:absolute;z-index:10001;'><h4 id='HTitle' style='margin:0px;padding:3px;background:#46c133;opacity:0.9;border:1px solid #46c133;height:20px;line-height:10px;font:13px 微软雅黑,Helvetica, Georgia, Arial, sans-serif;color:black;text-align:left;'>"+titles+"<a id='AClose' onclick='btnCloses();' style='color:black;float:right;position:relative;right:20px;cursor:hand;'>关闭</a></h4><div id='Content'>"+contents+"</div></div></div>"; 
+		
+		$(document.body).append(div); 
+		
+		if(url != ""){ 
+			$("#Content").load(url); 
+			
+		} 
+		
+		
+	} 
+	//移除弹出层 
+	function RemoveDiv(){ 
+		$("#AClose").remove(); 
+		$("#HTitle").remove(); 
+		$("#offDiv").remove(); 
+		$("#InDiv").remove(); 
+	} 
+
+		
+	
+		
+
+	function btnCloses(){
+		RemoveDiv(); 
+	}
+	function clearEn1(obj){
+		$("input[name='yxcf_en']").attr("value","");
+		if(obj.value!=""){
+			$("input[name='yxcf_en']").attr("onfocus","this.blur()");
+			$("input[name='yxcf_en']").css("background","#c5c5c5");
+		}
+		else{
+			$("input[name='yxcf_en']").removeAttr("onfocus");
+			$("input[name='yxcf_en']").css("background","white");
+		}
+		
+		if($("input[name='yxcf_en']").val()==""&&$("input[name='yxcf']").val()==""){
+			//alert($("#yxcfhl-1").val());
+			//$("#yxcfhl-1").attr("value",$("input[name='yxcfhl']").val());
+			$("input[name='yxcfhl']").attr("value","");
+			$("input[name='yxcfhl']").attr("onfocus","this.blur()");
+			$("input[name='yxcfhl']").css("background","#c5c5c5");
+		}
+		else{
+			//alert($("#yxcfhl-1").val());
+			$("input[name='yxcfhl']").attr("value",$("#yxcfhl-1").val());
+			$("input[name='yxcfhl']").removeAttr("onfocus");
+			$("input[name='yxcfhl']").css("background","white");
+		}
+	}
+	function clear1(obj){
+		$("input[name='yxcf']").attr("value","");
+		if(obj.value!=""){
+			$("input[name='yxcf']").attr("onfocus","this.blur()");
+			$("input[name='yxcf']").css("background","#c5c5c5");
+		}
+		else{
+			$("input[name='yxcf']").removeAttr("onfocus");
+			$("input[name='yxcf']").css("background","white");
+		}
+		
+		if($("input[name='yxcf_en']").val()==""&&$("input[name='yxcf']").val()==""){
+			//$("#yxcfhl-1").attr("value",$("input[name='yxcfhl']").val());
+			$("input[name='yxcfhl']").attr("value","");
+			$("input[name='yxcfhl']").attr("onfocus","this.blur()");
+			$("input[name='yxcfhl']").css("background","#c5c5c5");
+		}
+		else{
+			$("input[name='yxcfhl']").attr("value",$("#yxcfhl-1").val());
+			$("input[name='yxcfhl']").removeAttr("onfocus");
+			$("input[name='yxcfhl']").css("background","white");
+		}
+	}
+	function clearEn2(obj){
+		$("input[name='yxcf2_en']").attr("value","");
+		if(obj.value!=""){
+			$("input[name='yxcf2_en']").attr("onfocus","this.blur()");
+			$("input[name='yxcf2_en']").css("background","#c5c5c5");
+		}
+		else{
+			$("input[name='yxcf2_en']").removeAttr("onfocus");
+			$("input[name='yxcf2_en']").css("background","white");
+		}
+		
+		if($("input[name='yxcf2_en']").val()==""&&$("input[name='yxcf2']").val()==""){
+			//$("#yxcfhl-2").val($("input[name='yxcf2hl']").val());
+			$("input[name='yxcf2hl']").attr("value","");
+			$("input[name='yxcf2hl']").attr("onfocus","this.blur()");
+			$("input[name='yxcf2hl']").css("background","#c5c5c5");
+		}
+		else{
+			$("input[name='yxcf2hl']").val($("#yxcfhl-2").val());
+			$("input[name='yxcf2hl']").removeAttr("onfocus");
+			$("input[name='yxcf2hl']").css("background","white");
+		}
+	}
+	function clear2(obj){
+		$("input[name='yxcf2']").attr("value","");
+		if(obj.value!=""){
+			$("input[name='yxcf2']").attr("onfocus","this.blur()");
+			$("input[name='yxcf2']").css("background","#c5c5c5");
+		}
+		else{
+			$("input[name='yxcf2']").removeAttr("onfocus");
+			$("input[name='yxcf2']").css("background","white");
+		}
+		
+		if($("input[name='yxcf2_en']").val()==""&&$("input[name='yxcf2']").val()==""){
+			//$("#yxcfhl-2").val($("input[name='yxcf2hl']").val());
+			$("input[name='yxcf2hl']").attr("value","");
+			$("input[name='yxcf2hl']").attr("onfocus","this.blur()");
+			$("input[name='yxcf2hl']").css("background","#c5c5c5");
+		}
+		else{
+			$("input[name='yxcf2hl']").val($("#yxcfhl-2").val());
+			$("input[name='yxcf2hl']").removeAttr("onfocus");
+			$("input[name='yxcf2hl']").css("background","white");
+		}
+	}
+	function clearEn3(obj){
+		$("input[name='yxcf3_en']").attr("value","");
+		if(obj.value!=""){
+			$("input[name='yxcf3_en']").attr("onfocus","this.blur()");
+			$("input[name='yxcf3_en']").css("background","#c5c5c5");
+		}
+		else{
+			$("input[name='yxcf3_en']").removeAttr("onfocus");
+			$("input[name='yxcf3_en']").css("background","white");
+		}
+		
+		if($("input[name='yxcf3_en']").val()==""&&$("input[name='yxcf3']").val()==""){
+			//$("#yxcfhl-3").val($("input[name='yxcf3hl']").val());
+			$("input[name='yxcf3hl']").attr("value","");
+			$("input[name='yxcf3hl']").attr("onfocus","this.blur()");
+			$("input[name='yxcf3hl']").css("background","#c5c5c5");
+		}
+		else{
+			$("input[name='yxcf3hl']").val($("#yxcfhl-3").val());
+			$("input[name='yxcf3hl']").removeAttr("onfocus");
+			$("input[name='yxcf3hl']").css("background","white");
+		}
+	}
+	function clear3(obj){
+		$("input[name='yxcf3']").attr("value","");
+		if(obj.value!=""){
+			$("input[name='yxcf3']").attr("onfocus","this.blur()");
+			$("input[name='yxcf3']").css("background","#c5c5c5");
+		}
+		else{
+			$("input[name='yxcf3']").removeAttr("onfocus");
+			$("input[name='yxcf3']").css("background","white");
+		}
+		
+		if($("input[name='yxcf3_en']").val()==""&&$("input[name='yxcf3']").val()==""){
+			//$("#yxcfhl-3").val($("input[name='yxcf3hl']").val());
+			$("input[name='yxcf3hl']").attr("value","");
+			$("input[name='yxcf3hl']").attr("onfocus","this.blur()");
+			$("input[name='yxcf3hl']").css("background","#c5c5c5");
+		}
+		else{
+			$("input[name='yxcf3hl']").val($("#yxcfhl-3").val());
+			$("input[name='yxcf3hl']").removeAttr("onfocus");
+			$("input[name='yxcf3hl']").css("background","white");
+		}
+	}
+	</script>
+</head>
+<body>
+
+	
+	<div class="web_ser_body_right_main_search">
+      <h1>农药登记数据</h1>
+      <h2></h2>
+	<form id="searchForm"   action="queryselect.do" method="post">
+		<input id="pageNo" name="pageNo" type="hidden" value="1"/>
+		<input id="pageSize" name="pageSize" type="hidden" value="20"/>	
+		<div id="messageBox" class="alert alert-error hide"><button data-dismiss="alert" class="close">×</button>
+			<label id="loginError" class="error"></label>
+		</div>
+		<div class="search_table">
+			<table id="searhTab" border="0" cellspacing="0" cellpadding="0" style="font-size: 12px;width:750px;margin-left: 0;">
+				<tr>
+					<td>登记证号：</td>
+					<td><input  name="djzh"  type="text" value="" maxlength="50"/></td>
+					<td>农药名称： </td>
+					<td><input  name="nymc"  type="text" value="" maxlength="50"/></td>
+					<td>登记证持有人：</td>
+					<td><input  name="cjmc"  type="text" value="" maxlength="50"/></td>
+				</tr>
+				<tr>
+					<td>省份：</td>
+					<td><input  name="sf"  type="text" value="" maxlength="50"/></td>
+					<td>农药类别：</td>
+					<td><input  name="nylb"  type="text" value="" maxlength="50"/></td>
+					<td>总有效成分含量：</td>
+					<td><input  name="zhl"  type="text" value="" maxlength="50"/></td>
+				</tr>
+				<tr>
+					<td ><p>剂型：</p></td>
+					<td ><input  name="jx"  type="text" value="" maxlength="50"/></td>
+					<td><p>作物/场所：</p></td>
+					<td><input  name="zwmc"  type="text" value="" maxlength="50"/></td>
+					<td><p>防治对象：</p></td>
+					<td><input name="fzdx"  type="text" value="" maxlength="50"/></td>
+				</tr>
+				<tr>
+					<td ><p>施用方法：</p></td>
+					<td ><input  name="syff"  type="text" value="" maxlength="50"/></td>
+					<td ><p>毒性：</p></td>
+					<td ><input  name="dx"  type="text" value="" maxlength="50"/></td>
+				</tr>
+				<tr>
+					<td ><p>有效成分1：</p></td>
+					<td ><input  name="yxcf"  type="text" value="" onchange="clearEn1(this);" onkeyup="clearEn1(this);" maxlength="50"/></td>
+					<td ><p>英文1：</p></td>
+					<td ><input  name="yxcf_en"  type="text" value="" onchange="clear1(this);" onkeyup="clear1(this);" maxlength="50"/></td>
+					<td ><p>含量1：</p></td>
+					<td ><input  name="yxcfhl"  type="text" value=""  onchange="$('#yxcfhl-1').attr('value',this.value)" onkeyup="$('#yxcfhl-1').attr('value',this.value)"  maxlength="50"/></td>
+				</tr>
+				<tr>
+					<td ><p>有效成分2：</p></td>
+					<td ><input  name="yxcf2"  type="text" value="" onchange="clearEn2(this);" onkeyup="clearEn2(this);" maxlength="50"/></td>
+					<td ><p>英文2：</p></td>
+					<td ><input  name="yxcf2_en"  type="text" value="" onchange="clear2(this);" onkeyup="clear2(this);" maxlength="50"/></td>
+					<td ><p>含量2：</p></td>
+					<td ><input  name="yxcf2hl"  type="text" value=""  onchange="$('#yxcfhl-2').attr('value',this.value)" onkeyup="$('#yxcfhl-2').attr('value',this.value)"  maxlength="50"/></td>
+				</tr>
+				<tr>
+					<td ><p>有效成分3：</p></td>
+					<td ><input  name="yxcf3"  type="text" value="" onchange="clearEn3(this);" onkeyup="clearEn3(this);" maxlength="50"/></td>
+					<td ><p>英文3：</p></td>
+					<td ><input  name="yxcf3_en"  type="text" value="" onchange="clear3(this);" onkeyup="clear3(this);" maxlength="50"/></td>
+					<td ><p>含量3：</p></td>
+					<td ><input  name="yxcf3hl"  type="text" value=""  onchange="$('#yxcfhl-3').attr('value',this.value)" onkeyup="$('#yxcfhl-3').attr('value',this.value)"  maxlength="50"/></td>
+				</tr>
+				<tr>
+					<td ><p>有效起始日：</p></td>
+					<td ><input class="Wdate" name="yxqs_start" id="yxqs_start" type="text" value="" maxlength="50" onFocus="var yxqs_end=$dp.$('yxqs_end');WdatePicker({onpicked:function(){yxqs_end.focus();},maxDate:'#F{$dp.$D(\'yxqs_end\')}'})" readonly="readonly"/></td>
+					<td ><p>至：</p></td>
+					<td ><input  class="Wdate" name="yxqs_end" id="yxqs_end"  type="text" value="" maxlength="50" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'yxqs_start\')}'})" readonly="readonly"/></td>
+				</tr>
+				<tr>
+					<td ><p>有效截止日：</p></td>
+					<td ><input  name="yxjz_start" class="Wdate" id="yxjz_start" type="text" value="" maxlength="50" onFocus="var yxjz_end=$dp.$('yxjz_end');WdatePicker({onpicked:function(){yxjz_end.focus();},maxDate:'#F{$dp.$D(\'yxjz_end\')}'})" readonly="readonly"/></td>
+					<td ><p>至：</p></td>
+					<td ><input  name="yxjz_end" class="Wdate" id="yxjz_end"  type="text" value="" maxlength="50" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'yxjz_start\')}'})" readonly="readonly"/></td>
+				</tr>
+				<tr>
+					<td>单剂：</td>
+					<td><input type="checkbox" id="dj" name="dj" value="1"  /></td>
+					<td>混剂：</td>
+					<td><input type="checkbox" id="hj" name="hj" value="1"  /> </td>
+					<td>包括已过有效期产品：</td>
+					<td><input id="ygq" name="ygq"  type="checkbox" value="1" /> </td>
+				</tr>
+				<tr>
+					<td>精确查询：</td>
+					<td><input type="radio" id="accurate" name="accOrfuzzy" value="1" /> </td>
+					<td>模糊查询：</td>
+					<td><input type="radio" id="fuzzy" name="accOrfuzzy" value="2"  checked="true"/> </td>
+					<td colspan="2">
+						<div style="text-align: center;">
+							<input id="btnSubmit" style="background:url('/BasicdataSystem/lib/images/button.png') no-repeat;width:59px;height:25px;border:0px;margin-right: 20px;" type="submit" value=""/>
+							<input id="btnReset" type="button" style="width:59px;height:25px;border:0px;margin-right: 20px;" value="重置"/>
+						</div>
+					</td>
+				</tr>
+			</table>
+
+
+
+                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+      
+	</form>
+		
+		
+	 <table width="750" border="0" cellspacing="0" cellpadding="0" id="tab" style="margin-left:20px;">
+		<tr>
+		    <td class="t1"><p>登记证号</p></td>
+		    <td class="t2"><p>农药名称</p></td>
+		    <td class="t2"><p>农药类别</p></td>
+			
+		    <td class="t2"><p>剂型</p></td>
+		    <td class="t2"><p>总含量</p></td>
+		    <td class="t2"  style="width:100px"><p>有效期至</p></td>
+		    <!-- <td class="t2"><p>毒性</p></td> -->
+		    <td class="t2" style="width:260px"><p>登记证持有人</p></td>
+		
+  		</tr>
+  		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('9f81505402aa484485e767deaf49296a')" >    PD20050093  </a>   </span></td>
+		    <td class="t4"><span>三唑酮</span></td>
+		     <td class="t4"><span>杀菌剂</span></td>
+		 <td class="t4"><span>可湿性粉剂</span></td>
+		 <td class="t4"><span>15%</span></td>
+			  <td class="t4"><span>2030-7-1</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20050093')" >    江苏建农植物保护有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('7b0d7c0bb0134777a180adb796f2e7d6')" >    PD20050089  </a>   </span></td>
+		    <td class="t4"><span>三唑酮</span></td>
+		     <td class="t4"><span>杀菌剂</span></td>
+		 <td class="t4"><span>可湿性粉剂</span></td>
+		 <td class="t4"><span>15%</span></td>
+			  <td class="t4"><span>2030-7-1</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20050089')" >    湖南新长山农业发展股份有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('33e60a792ebd41a4ac2a99e99e1f87d1')" >    PD20050088  </a>   </span></td>
+		    <td class="t4"><span>吡虫啉</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>乳油</span></td>
+		 <td class="t4"><span>5%</span></td>
+			  <td class="t4"><span>2030-7-1</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20050088')" >     江苏丰山生化科技有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('59c3fe416d6d4e8e8f6784e0f11c95ea')" >    PD90106  </a>   </span></td>
+		    <td class="t4"><span>苏云金杆菌</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>悬浮剂</span></td>
+		 <td class="t4"><span>6000IU/微升</span></td>
+			  <td class="t4"><span>2030-6-30</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD90106')" >    康欣生物科技有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('72e89964fd8f4977a296e5aad9faeab0')" >    PD85121-9  </a>   </span></td>
+		    <td class="t4"><span>乐果</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>乳油</span></td>
+		 <td class="t4"><span>40%</span></td>
+			  <td class="t4"><span>2030-6-28</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD85121-9')" >    广东广康生化科技股份有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('682ec1ea781b40c79f7511689db5ebeb')" >    PD20050087  </a>   </span></td>
+		    <td class="t4"><span>吡虫啉</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>可湿性粉剂</span></td>
+		 <td class="t4"><span>10%</span></td>
+			  <td class="t4"><span>2030-6-28</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20050087')" >    安徽嘉联生物科技有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('e985439d93c14f4fa5b64dec64e104e4')" >    PD85121-2  </a>   </span></td>
+		    <td class="t4"><span>乐果</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>乳油</span></td>
+		 <td class="t4"><span>40%</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD85121-2')" >    江苏蓝丰生物化工股份有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('603d7f573cd64da39963ff892237a405')" >    PD85120-3  </a>   </span></td>
+		    <td class="t4"><span>乐果</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>原药</span></td>
+		 <td class="t4"><span>90%</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD85120-3')" >    江苏蓝丰生物化工股份有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('627966b580f24dd0aa0f13a457eb29e2')" >    PD20101748  </a>   </span></td>
+		    <td class="t4"><span>阿维菌素</span></td>
+		     <td class="t4"><span>杀螨剂/杀虫剂</span></td>
+		 <td class="t4"><span>乳油</span></td>
+		 <td class="t4"><span>1.8%</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20101748')" >    潍坊万胜生物农药有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('79c50ae95cdf49a6a17bbb6e729cfc44')" >    PD20101746  </a>   </span></td>
+		    <td class="t4"><span>草甘膦铵盐(33%)</span></td>
+		     <td class="t4"><span>除草剂</span></td>
+		 <td class="t4"><span>水剂</span></td>
+		 <td class="t4"><span>/</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20101746')" >    广西植保科技有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('ee5ae4656b2c43dc94e755ca57251bb5')" >    PD20101745  </a>   </span></td>
+		    <td class="t4"><span>炔螨特</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>乳油</span></td>
+		 <td class="t4"><span>57%</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20101745')" >    青岛恒丰作物科学有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('853ff1aa44624ab78c495c5ba93e626b')" >    PD20101740  </a>   </span></td>
+		    <td class="t4"><span>氰戊·喹硫磷</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>乳油</span></td>
+		 <td class="t4"><span>12.5%</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20101740')" >    山东省青岛奥迪斯生物科技有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('cc2a238584f844a89995fe245b476429')" >    PD20101738  </a>   </span></td>
+		    <td class="t4"><span>敌敌畏</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>乳油</span></td>
+		 <td class="t4"><span>48%</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20101738')" >    河南农王实业有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('534d0635d6f040e7820d37b8c0acbdd0')" >    PD20101737  </a>   </span></td>
+		    <td class="t4"><span>吡虫啉</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>可湿性粉剂</span></td>
+		 <td class="t4"><span>25%</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20101737')" >    山东潍坊双星农药有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('1ff56f2c23a34785a1dae13fcb778765')" >    PD20101735  </a>   </span></td>
+		    <td class="t4"><span>丙草胺</span></td>
+		     <td class="t4"><span>除草剂</span></td>
+		 <td class="t4"><span>乳油</span></td>
+		 <td class="t4"><span>30%</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20101735')" >    江苏莱科化学有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('948e4a31512046e6ae26b66a521ca244')" >    PD20101729  </a>   </span></td>
+		    <td class="t4"><span>丙溴磷</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>乳油</span></td>
+		 <td class="t4"><span>40%</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20101729')" >    青岛东生药业有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('fbf53f53cece4201b16c6095da72ddd9')" >    PD20101728  </a>   </span></td>
+		    <td class="t4"><span>高氯·甲维盐</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>微乳剂</span></td>
+		 <td class="t4"><span>5%</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20101728')" >    四川百事东旺生物科技有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('d2b4560af5564dc9b8b052379357da08')" >    PD20101725  </a>   </span></td>
+		    <td class="t4"><span>霜脲·锰锌</span></td>
+		     <td class="t4"><span>杀菌剂</span></td>
+		 <td class="t4"><span>可湿性粉剂</span></td>
+		 <td class="t4"><span>72%</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20101725')" >    河北绿色农华作物科技有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('e043ea7128484df0a2b7127a9707caee')" >    PD20101723  </a>   </span></td>
+		    <td class="t4"><span>啶虫脒</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>水分散粒剂</span></td>
+		 <td class="t4"><span>40%</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20101723')" >    陕西美邦药业集团股份有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+  		
+
+		<tr    >
+		 
+		  <td class="t3"><span>  <a href='#'style='color:blue;'  onclick="_viewpd('ad61854388fd4473af1cf920bad0dfea')" >    PD20101721  </a>   </span></td>
+		    <td class="t4"><span>吡虫啉</span></td>
+		     <td class="t4"><span>杀虫剂</span></td>
+		 <td class="t4"><span>悬浮剂</span></td>
+		 <td class="t4"><span>600克/升</span></td>
+			  <td class="t4"><span>2030-6-27</span></td>
+		  <td class="t3"><span>
+		  <a href='#'style='color:blue;'  onclick="_viewcompany('PD20101721')" >    深圳诺普信作物科学股份有限公司  </a>
+		  </span></td>
+		
+		</tr>
+		
+			
+			
+		
+	</table>
+	
+	<div class="pagination"><ul>
+<li><a href="javascript:" onclick="page(1,20,'');">&#171; 上一页</a></li>
+<li><a href="javascript:" onclick="page(1,20,'');">1</a></li>
+<li class="active"><a href="javascript:">2</a></li>
+<li><a href="javascript:" onclick="page(3,20,'');">3</a></li>
+<li><a href="javascript:" onclick="page(4,20,'');">4</a></li>
+<li><a href="javascript:" onclick="page(5,20,'');">5</a></li>
+<li><a href="javascript:" onclick="page(6,20,'');">6</a></li>
+<li><a href="javascript:" onclick="page(7,20,'');">7</a></li>
+<li><a href="javascript:" onclick="page(8,20,'');">8</a></li>
+<li class="disabled"><a href="javascript:">...</a></li>
+<li><a href="javascript:" onclick="page(2443,20,'');">2443</a></li>
+<li><a href="javascript:" onclick="page(3,20,'');">下一页 &#187;</a></li>
+<li class="disabled controls"><a href="javascript:">当前 <input type="text" value="2" onkeypress="var e=window.event||this;var c=e.keyCode||e.which;if(c==13)page(this.value,20,'');" onclick="this.select();"/> / <input type="text" value="2443" onkeypress="var e=window.event||this;var c=e.keyCode||e.which;if(c==13)page(2,this.value,'');" onclick="this.select();"/> 页，共 48846 条</a></li>
+</ul>
+<div style="clear:both;"></div></div>
+	</div>
+	<input type="hidden" id="yxcfhl-1" value=""/>
+	<input type="hidden" id="yxcfhl-2" value=""/>
+	<input type="hidden" id="yxcfhl-3" value=""/>
+	
+</body>
+<script type="text/javascript">
+
+</script>
+</html>
