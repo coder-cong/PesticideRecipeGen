@@ -116,7 +116,7 @@ from huggingface_hub import HfApi
 
 from huggingface_hub import login
 
-login(token="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")
+login(token="")
 
 # 创建DatasetDict并推送
 dataset_dict = datasets.DatasetDict({"train": dataset})
