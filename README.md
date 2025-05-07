@@ -1,6 +1,3 @@
-# fucking_drug
-Using large language models to generate pesticide formulas, this is my mentor's damn outsourced project
-
 # 目录说明
 ## data_prepare文件夹
 存放数据处理代码以及相应的数据
