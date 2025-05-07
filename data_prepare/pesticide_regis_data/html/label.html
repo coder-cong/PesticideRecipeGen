@@ -1,0 +1,378 @@
+
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html style="overflow-x:auto;overflow-y:auto;">
+<head>
+	<title>农药标签--新改版</title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="Pragma" content="no-cache" />
+
+
+
+
+
+<script type="text/javascript">
+<!--
+	var _CTXPATH = '/BasicdataSystem';
+	var _SESSIONID = '57157209E632D2ACFCA929F6EA852C3B';
+//-->
+</script>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-core/jquery-100.0.0.min.js" ></script>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-layout/jquery.layout-latest.min.js" ></script>
+
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/jquery-layout/layout-default-latest.css" />
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/css/themes/base/jquery.ui.all.css" />
+<link rel="stylesheet" href="/BasicdataSystem/lib/css/form-table.css">
+
+<script type="text/javascript" src="/BasicdataSystem/lib/js/common/utils.js?v=2" ></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/js/common/json2.js" ></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/js/common/MyUtils.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/js/accounting.js" ></script>
+
+<script src="/BasicdataSystem/lib/js/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/webuploader-0.1.5/webuploader.js" ></script>
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/webuploader-0.1.5/webuploader.css" />
+
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-ztree35/jquery.ztree.all.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/jquery-ztree35/zTreeStyle/zTreeStyle.css"/>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/validatorEngine/jquery.validationEngine-cn.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/validatorEngine/jquery.validationEngine.js"></script>
+<link rel="stylesheet" href="/BasicdataSystem/lib/plugins/validatorEngine/template.css" />
+<link rel="stylesheet" href="/BasicdataSystem/lib/plugins/validatorEngine/validationEngine.jquery.css" />
+
+
+
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/artdialog/artDialog.source.js?skin=default"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/artdialog/iframeTools.source.js?v=1"></script>
+<link  rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/artdialog/skins/default.css"/>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/tabpanel/TabPanel.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/tabpanel/Fader.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/tabpanel/Math.uuid.js"></script>
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/tabpanel/TabPanel.css">
+
+<link rel="stylesheet" href="/BasicdataSystem/lib/css/ui.multiselect.css">
+<link rel="stylesheet" href="/BasicdataSystem/lib/css/form.css">
+
+<script type="text/javascript" src="/BasicdataSystem/lib/js/departmentUserSelect/departmentUserSelect.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/My97DatePicker/WdatePicker.js"></script>
+<link href="/BasicdataSystem/lib/plugins/icheck/skins/square/blue.css" rel="stylesheet">
+<script src="/BasicdataSystem/lib/plugins/icheck/icheck.js"></script>
+<link rel="stylesheet" href="/BasicdataSystem/lib/plugins/jquery-ui/jquery-ui.css" />
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-ui/jquery-ui.js" ></script>
+
+<style type="text/css">
+.required_label{
+	font-weight:bold;color:blue;
+}
+.applyTitle{
+	text-align:center;
+	line-height: 40px;
+	font-size: 24px;
+}
+.Form_position{
+	position: relative;
+}
+table.serch_tbDetail{
+	table-layout:auto !important;
+}
+table.serch_tbDetail td{
+	padding: 2px 4px 2px 5px !important;
+	border: 1px solid #E5E5E5;
+}
+table.serch_tbDetail td.title{
+	background: none;
+}
+table.serch_tbDetail td.tdField label.lblFieldTitle{
+    background: #fff;
+}
+table.serch_tbDetail td.tdField input{
+	height:20px;
+	line-height:20px;
+	font-size:12px;
+	padding-left: 3px;
+}
+table.ide_Table{
+	table-layout:fixed;
+}
+.TD_title{
+	border: 1px solid #ccc !important;
+	padding: 0 0 0 10px !important;
+	position: inherit !important;
+	background:url("/BasicdataSystem/lib/images/nl2/index/T_title_bg.png") repeat-x !important;
+	color:#005fcb !important;
+	font-size: 14px !important;
+	font-weight: bold !important;
+
+}
+.TD_title label{
+	text-align:left !important;
+	background: none !important;
+}
+.south-button{
+	padding: 3px 0 !important;
+}
+.anchor_point {
+	position: absolute;
+	top:-90px;
+	right:20px;
+}
+#help{
+	color: red;
+}
+.anchor_point a{
+	width:30px;
+	height:30px;
+	margin-top: 30px;
+	background: url("/BasicdataSystem/image/help.png") no-repeat;
+	display:block;
+}
+</style>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-jqgrid/jquery.jqGrid-latest.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-jqgrid/i18n/grid.locale-cn.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-jqgrid/jqgrid.plugin.js"></script>
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/jquery-jqgrid/ui.jqgrid.css">
+<script type="text/javascript">
+	$.jgrid.no_legacy_api = true;
+	$.jgrid.useJSON = true;
+</script>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="author"	content="中国农药信息网"/>
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=8,IE=9,IE=10" />
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-store">
+
+
+
+
+<script src="/BasicdataSystem/pesticideinfonetlib/jquery/jquery-1.8.3.min.js" type="text/javascript"></script>
+<link href="/BasicdataSystem/pesticideinfonetlib/bootstrap/2.3.1/css_united/bootstrap.css" type="text/css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/bootstrap/2.3.1/js/bootstrap.min.js" type="text/javascript"></script>
+<!--<link href="/BasicdataSystem/pesticideinfonetlib/bootstrap/2.3.1/awesome/font-awesome.min.css" type="text/css" rel="stylesheet" /> -->
+<!--[if lte IE 7]><link href="/scripts/bootstrap/2.3.1/awesome/font-awesome-ie7.min.css" type="text/css" rel="stylesheet" /><![endif]-->
+<!--[if lte IE 6]><link href="/scripts/bootstrap/bsie/css/bootstrap-ie6.min.css" type="text/css" rel="stylesheet" />
+<script src="/scripts/bootstrap/bsie/js/bootstrap-ie.min.js" type="text/javascript"></script><![endif]-->
+<link href="/BasicdataSystem/pesticideinfonetlib/jquery-select2/3.4/select2.min.css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/jquery-select2/3.4/select2.min.js" type="text/javascript"></script>
+<link href="/BasicdataSystem/pesticideinfonetlib/jquery-validation/1.11.0/jquery.validate.min.css" type="text/css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/jquery-validation/1.11.0/jquery.validate.min.js" type="text/javascript"></script>
+<link href="/BasicdataSystem/pesticideinfonetlib/jquery-jbox/2.3/Skins/Bootstrap/jbox.min.css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/jquery-jbox/2.3/jquery.jBox-2.3.min.js" type="text/javascript"></script>
+<script src="/BasicdataSystem/pesticideinfonetlib/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
+<script src="/BasicdataSystem/pesticideinfonetlib/common/mustache.min.js" type="text/javascript"></script>
+<link href="/BasicdataSystem/pesticideinfonetlib/common/sintra.min.css" type="text/css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/common/sintra.min.js" type="text/javascript"></script>
+<script type="text/javascript">var ctx = '/BasicdataSystem', ctxStatic='/BasicdataSystem/pesticideinfonetlib';</script>
+
+<meta name="decorator" content="blank"/>
+
+	<style type="text/css">
+
+	.style4 {
+		font-size: 16px;
+		font-weight: bold;
+	}
+	.style7 {font-size: 14px}
+	.style10 {
+		font-size: 36px;
+		font-weight: bold;
+	}
+	.style13 {
+	font-size: 25px;
+	font-weight: bold;
+    }
+	.style11 {
+		font-size: 20px;
+		font-weight: bold;
+	}
+	.style14 {
+		font-size: 28px;
+		font-weight: bold;
+	}
+	.style12 {color: #FF0000}
+	.kuang {
+		border: 1px solid #000000;
+	}
+	table tr td .style7 img{
+	 width:40px;
+	 height:40px;
+	}
+	.style16 {
+	font-family: "华文仿宋";
+	font-size: 12px;
+	}
+	</style>
+	<script type="text/javascript">
+		function openHzbqjl(id){//在新标签页打开核准记录
+			window.open("./tagRecheckInfo?id="+id);
+		}
+
+        $(document).ready(function(){
+            $("#selectHistory").bind("click",function(){
+                var url = "/BasicdataSystem/pesticide/viewlableHistory.do?certificateCode=PD20151175 & r="+ Math.random();
+                smartWinOpen(url,"查看标签历史信息",500,600,null);
+            });
+        });
+
+	</script>
+</head>
+<body>
+<div style="margin:0 auto;margin-top:30px; width:800px;">
+	<table width="100%" border="0" cellpadding="0" cellspacing="0" bordercolorlight="#000000" class="kuang"  >
+
+
+
+                <tr>
+                    <td width="50%" height="85">
+                        <table width="100%"  border="0">
+							<tr>
+                                <td><span class="style4">农药登记证号：</span><span>PD20151175</span></td>
+							</tr>
+							<tr>
+                                <td><span class="style4">登记证持有人：</span><span>德州祥龙生化有限公司</span></td>
+							</tr>
+							<tr>
+                                <td><span class="style4">农药名称：</span><span>甲氨基阿维菌素</span></td>
+							</tr>
+							<tr>
+                                <td><span class="style4">剂型：</span><span>可分散油悬浮剂</span></td>
+							</tr>
+							<tr>
+                                <td valign="middle">
+                                    <span class="style4" style="float: left;">毒性及其标识：</span>
+                                    <div class="style12" style="float:left;">
+
+
+										 	<img src="/BasicdataSystem/lib/images/dx3.JPG">
+
+
+
+                                    </div>
+					           </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <div class="style4">有效成分及其含量：</div>
+                                    <span>&nbsp;&nbsp;&nbsp;
+
+									甲氨基阿维菌素3%   &nbsp;&nbsp;&nbsp;
+
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="style4">使用范围和使用方法：</div>
+									<table width="100%"  border="1" bordercolorlight="#000000" cellpadding="0" cellspacing="0">
+									<tr>
+									    <td width="28%"><span class="style7">作物/场所</span></td>
+									    <td width="28%"><span class="style7">防治对象</span></td>
+									    <td width="24%"><span class="style7">用药量（制剂量/亩）</span></td>
+									    <td width="20%"><span class="style7">施用方式</span></td>
+									</tr>
+
+									<tr>
+										<td><span class="style7">草坪</span></td>
+										<td><span class="style7">斜纹夜蛾</span></td>
+										<td><span class="style7">4-5毫升/亩</span></td>
+										<td><span class="style7">喷雾</span></td>
+									</tr>
+
+									</table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+	                                <span class="style4">使用技术要求:</span><br>
+	                                <span class="style7">1、本品在草坪斜纹夜蛾幼虫发生初盛期施药1次。于斜纹夜蛾幼虫发生初盛期兑水均匀喷雾处理。2、大风天或预计1小时内降雨，请勿施药。</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+	                                <span class="style4">产品性能:</span><br>
+	                                <span class="style7">本品作用机理为阻碍害虫运动神经信息传递而使身体麻痹死亡。作用方式以胃毒为主，对作物无内吸性能，但能有效渗入施用作物表皮组织，因而具有较长残效期。在土壤中易降解无残留。主要用于防治草坪斜纹夜蛾。
+</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="style4">注意事项：</span><br><span class="style7">1.不要与碱性农药等物质混用，注意与不同作用机制的杀虫剂轮换使用，以延缓抗药性产生。2.本品对蜜蜂、家蚕、鸟、鱼类等水生生物有毒。开花植物花期禁用，施药期间应密切关注对附近蜂群的影响，桑园及蚕室附近禁用。赤眼蜂等天敌放飞区禁用，鸟类保护区附近禁用。远离水产养殖区施药，禁止在河塘等水体中清洗施药器具，用过的容器应妥善处理，不可做他用，也不可随意丢弃。3.使用本品时应穿戴防护服和手套，避免吸入药液。施药期间不可吃东西和饮水。施药后应及时洗手和洗脸。4.孕妇和哺乳期妇女请勿接触本品。</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="style4">中毒急救措施：</span><br><span class="style7">如药物溅到皮肤或衣物上，要用肥皂和清水冲洗；如溅到眼中，应立即用大量清水冲洗至少15分钟；误服，立即引吐并给患者服用吐根糖浆或麻黄素，但勿给昏迷患者催吐或灌任何东西，抢救时避免给患者使用增强r-氨基丁酸活性的药物，如巴比妥、丙戊酸等。
+</span></td>
+                            </tr>
+							<tr>
+                                <td><span class="style4">储存和运输方法：</span><br><span class="style7">1、贮存于阴凉、干燥、通风防雨处，防止受潮，远离火源或热源，隔热防晒，避免高温。2、不可与粮食、饮料、饲料、食品等同贮同运。3、贮存在儿童及无关人员、动物接触不到的地方，并加锁。</span></td>
+							</tr>
+							<tr>
+                                <td><span class="style4">质量保证期：</span><span class="style7">2年</span></td>
+							</tr>
+							<tr>
+                                <td><span class="style4">备注：</span><br><span class="style7">甲氨基阿维菌素苯甲酸盐含量：3.4％</span></td>
+							</tr>
+							<tr>
+                                <td>
+	                                <span class="style4">核准日期：</span><span class="style7">
+
+	                                2015-06-26
+
+
+	                                </span>
+                                </td>
+							</tr>
+							<tr>
+							   <td>
+                                    <span class="style4">重新核准日期：</span><span class="style7">
+
+
+									/
+
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+
+    </table>
+    <div style="margin:5px;direction: rtl;">
+        <input type="button" value="查看历史标签" id="selectHistory" />
+    </div>
+</div>
+</body>
+</html>

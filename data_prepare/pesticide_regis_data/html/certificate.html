@@ -1,0 +1,332 @@
+ 
+
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html style="overflow-x:auto;overflow-y:auto;">
+<head>
+	<title>查看</title>
+
+ 
+
+ 
+ 
+
+
+
+
+ 
+ 
+
+
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="Pragma" content="no-cache" />
+
+
+
+
+
+<script type="text/javascript">
+<!--
+	var _CTXPATH = '/BasicdataSystem';
+	var _SESSIONID = '57157209E632D2ACFCA929F6EA852C3B';
+//-->
+</script>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-core/jquery-100.0.0.min.js" ></script>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-layout/jquery.layout-latest.min.js" ></script>
+
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/jquery-layout/layout-default-latest.css" />
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/css/themes/base/jquery.ui.all.css" />
+<link rel="stylesheet" href="/BasicdataSystem/lib/css/form-table.css">
+
+<script type="text/javascript" src="/BasicdataSystem/lib/js/common/utils.js?v=2" ></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/js/common/json2.js" ></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/js/common/MyUtils.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/js/accounting.js" ></script>
+
+<script src="/BasicdataSystem/lib/js/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/webuploader-0.1.5/webuploader.js" ></script>
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/webuploader-0.1.5/webuploader.css" />
+
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-ztree35/jquery.ztree.all.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/jquery-ztree35/zTreeStyle/zTreeStyle.css"/>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/validatorEngine/jquery.validationEngine-cn.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/validatorEngine/jquery.validationEngine.js"></script>
+<link rel="stylesheet" href="/BasicdataSystem/lib/plugins/validatorEngine/template.css" />
+<link rel="stylesheet" href="/BasicdataSystem/lib/plugins/validatorEngine/validationEngine.jquery.css" />
+
+
+
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/artdialog/artDialog.source.js?skin=default"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/artdialog/iframeTools.source.js?v=1"></script>
+<link  rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/artdialog/skins/default.css"/>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/tabpanel/TabPanel.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/tabpanel/Fader.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/tabpanel/Math.uuid.js"></script>
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/tabpanel/TabPanel.css">
+
+<link rel="stylesheet" href="/BasicdataSystem/lib/css/ui.multiselect.css">
+<link rel="stylesheet" href="/BasicdataSystem/lib/css/form.css">  
+
+<script type="text/javascript" src="/BasicdataSystem/lib/js/departmentUserSelect/departmentUserSelect.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/My97DatePicker/WdatePicker.js"></script>
+<link href="/BasicdataSystem/lib/plugins/icheck/skins/square/blue.css" rel="stylesheet">
+<script src="/BasicdataSystem/lib/plugins/icheck/icheck.js"></script>
+<link rel="stylesheet" href="/BasicdataSystem/lib/plugins/jquery-ui/jquery-ui.css" /> 
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-ui/jquery-ui.js" ></script>
+
+<style type="text/css">
+.required_label{
+	font-weight:bold;color:blue; 
+}
+.applyTitle{
+	text-align:center; 
+	line-height: 40px;
+	font-size: 24px;
+}
+.Form_position{
+	position: relative;
+}
+table.serch_tbDetail{
+	table-layout:auto !important;
+}
+table.serch_tbDetail td{
+	padding: 2px 4px 2px 5px !important;
+	border: 1px solid #E5E5E5;
+}
+table.serch_tbDetail td.title{
+	background: none;
+}
+table.serch_tbDetail td.tdField label.lblFieldTitle{
+    background: #fff; 
+}
+table.serch_tbDetail td.tdField input{
+	height:20px;
+	line-height:20px;
+	font-size:12px;
+	padding-left: 3px;
+}
+table.ide_Table{
+	table-layout:fixed;
+}
+.TD_title{
+	border: 1px solid #ccc !important;
+	padding: 0 0 0 10px !important;
+	position: inherit !important;
+	background:url("/BasicdataSystem/lib/images/nl2/index/T_title_bg.png") repeat-x !important;
+	color:#005fcb !important;
+	font-size: 14px !important;
+	font-weight: bold !important;
+	
+}
+.TD_title label{
+	text-align:left !important;
+	background: none !important;
+}
+.south-button{
+	padding: 3px 0 !important;
+}
+.anchor_point {
+	position: absolute;
+	top:-90px;
+	right:20px;
+}
+#help{
+	color: red;
+}
+.anchor_point a{
+	width:30px;
+	height:30px;
+	margin-top: 30px;
+	background: url("/BasicdataSystem/image/help.png") no-repeat;
+	display:block;
+}
+</style>
+
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-jqgrid/jquery.jqGrid-latest.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-jqgrid/i18n/grid.locale-cn.js"></script>
+<script type="text/javascript" src="/BasicdataSystem/lib/plugins/jquery-jqgrid/jqgrid.plugin.js"></script>
+<link rel="stylesheet" type="text/css" href="/BasicdataSystem/lib/plugins/jquery-jqgrid/ui.jqgrid.css">
+<script type="text/javascript">
+	$.jgrid.no_legacy_api = true;
+	$.jgrid.useJSON = true;
+</script>
+	 
+
+
+
+
+
+
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="author"	content="中国农药信息网"/>
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=8,IE=9,IE=10" />
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-store">
+
+
+
+
+<script src="/BasicdataSystem/pesticideinfonetlib/jquery/jquery-1.8.3.min.js" type="text/javascript"></script>
+<link href="/BasicdataSystem/pesticideinfonetlib/bootstrap/2.3.1/css_united/bootstrap.css" type="text/css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/bootstrap/2.3.1/js/bootstrap.min.js" type="text/javascript"></script>
+<!--<link href="/BasicdataSystem/pesticideinfonetlib/bootstrap/2.3.1/awesome/font-awesome.min.css" type="text/css" rel="stylesheet" /> -->
+<!--[if lte IE 7]><link href="/scripts/bootstrap/2.3.1/awesome/font-awesome-ie7.min.css" type="text/css" rel="stylesheet" /><![endif]-->
+<!--[if lte IE 6]><link href="/scripts/bootstrap/bsie/css/bootstrap-ie6.min.css" type="text/css" rel="stylesheet" />
+<script src="/scripts/bootstrap/bsie/js/bootstrap-ie.min.js" type="text/javascript"></script><![endif]-->
+<link href="/BasicdataSystem/pesticideinfonetlib/jquery-select2/3.4/select2.min.css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/jquery-select2/3.4/select2.min.js" type="text/javascript"></script>
+<link href="/BasicdataSystem/pesticideinfonetlib/jquery-validation/1.11.0/jquery.validate.min.css" type="text/css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/jquery-validation/1.11.0/jquery.validate.min.js" type="text/javascript"></script>
+<link href="/BasicdataSystem/pesticideinfonetlib/jquery-jbox/2.3/Skins/Bootstrap/jbox.min.css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/jquery-jbox/2.3/jquery.jBox-2.3.min.js" type="text/javascript"></script>
+<script src="/BasicdataSystem/pesticideinfonetlib/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
+<script src="/BasicdataSystem/pesticideinfonetlib/common/mustache.min.js" type="text/javascript"></script>
+<link href="/BasicdataSystem/pesticideinfonetlib/common/sintra.min.css" type="text/css" rel="stylesheet" />
+<script src="/BasicdataSystem/pesticideinfonetlib/common/sintra.min.js" type="text/javascript"></script>
+<script type="text/javascript">var ctx = '/BasicdataSystem', ctxStatic='/BasicdataSystem/pesticideinfonetlib';</script>
+	
+<meta name="decorator" content="blank"/>
+
+	<style>
+		@charset "utf-8";
+		* {margin: 0px;padding: 0px;}
+		body {margin: 0 auto;font-size: 12px;width: 780px;}
+		img {border: none;}
+		a {color: red;text-decoration: none;}
+		a:hover {color: #02376d;text-decoration: underline;}
+		ul {list-style-type: none;padding: 0;margin: 0;}
+		/*服务版 搜索页*/
+		.web_ser_body_right_main_search{text-align:center;width:790px; border:0px solid #c5c5c5;  background-color:#FFF; }
+		.web_ser_body_right_main_search h1{font-size:15px; font-weight:bold; text-align:center; margin-top:40px; color:#262626;}
+		.web_ser_body_right_main_search h2{margin-top:30px; border-bottom:1px solid #c5c5c5; width:690px; margin-left:50px; margin-bottom:15px;}
+		
+		.web_ser_body_right_main_search #reg{ margin-left:80px; text-align:center; line-height:30px; margin-top:20px;}
+		.web_ser_body_right_main_search #reg tr .tab_lef_bot{border-left:1px solid #c5c5c5; border-bottom:1px solid #c5c5c5; font-size:12px;}
+		.web_ser_body_right_main_search #reg tr .tab_lef_bot_w{border-left:1px solid #c5c5c5; border-bottom:1px solid #c5c5c5; font-size:12px;font-weight:600}
+		.web_ser_body_right_main_search #reg tr .tab_lef_bot_rig{font-size:12px;border-left:1px solid #c5c5c5; border-bottom:1px solid #c5c5c5; border-right:1px solid #c5c5c5;}
+	</style>
+	<script type="text/javascript">
+function 	tagview(){
+	var url = ctx + "/pesticideRegistration/tagview.do?pdno=PD20151152"  ;
+	window.open (url);
+}
+	</script>		
+</head>
+<body >
+<div class="web_ser_body_right_main_search">
+
+   <h1>农药登记数据</h1>
+   				
+				<table width="636" id="reg" cellspacing="0" cellpadding="0">
+				 <tr>
+				   <td  colspan="6" style="font-weight:bold; background:url(/BasicdataSystem/images/queryimg/bg4.png) repeat-x; border:1px solid #c5c5c5;">农药登记证信息</td>
+				 </tr>
+				 <tr>
+				    <td width="80" class="tab_lef_bot_w">登记证号：</td>
+				    <td class="tab_lef_bot">
+                                  PD20151152
+				    </td>
+				    <td width="80" class="tab_lef_bot_w">首次批准日期：</td>
+				    <td class="tab_lef_bot">26-六月-15</td>
+				    <td width="80" class="tab_lef_bot_w">有效期至：</td>
+				    <td  class="tab_lef_bot_rig">25-六月-30</td>
+				 </tr>
+				 <tr>
+				    <td width="80" class="tab_lef_bot_w">农药名称：</td>
+				    <td class="tab_lef_bot"> 茚虫威</td>
+				    <td width="80" class="tab_lef_bot_w">毒性：</td>
+				    <td class="tab_lef_bot"> 低毒</td>
+				    <td width="80" class="tab_lef_bot_w">剂型：</td>
+				    <td  class="tab_lef_bot_rig"> 悬浮剂</td>
+				 </tr>
+				 <tr>
+				    <td width="80" class="tab_lef_bot_w">登记证持有人：</td>
+				    <td colspan="5" class="tab_lef_bot">
+                           陕西康禾立丰生物科技药业有限公司
+					
+					</td>
+				    
+<!-- 				    <td width="80" class="tab_lef_bot_w">国家：</td> -->
+
+				 </tr>
+				 <tr>
+				    <td width="80" class="tab_lef_bot_w">农药类别：</td>
+				    <td colspan="2" class="tab_lef_bot_rig"> 杀虫剂</td>
+				    <td width="80" class="tab_lef_bot_w">总有效成分含量：</td>
+				    <td colspan="2" class="tab_lef_bot_rig"> 15%</td>
+				 </tr>
+				 <tr>
+				    <td width="80" class="tab_lef_bot_w">备注：</td>
+				    <td colspan="5" class="tab_lef_bot_rig"> </td>
+				 </tr>
+				</table>
+				
+				<table width="636" id="reg" cellspacing="0" cellpadding="0" >
+				 <tr>
+				   <td  colspan="6" style="font-weight:bold;  repeat-x; border:1px solid #c5c5c5;">标签信息</td>
+				 </tr>
+				 <tr>
+				    <td width="100%" class="tab_lef_bot"><a href="#"  onclick="tagview()" >查看标签</a></td>
+				    
+				 </tr>
+				</table>
+				
+				<table width="636" id="reg" cellspacing="0" cellpadding="0" >
+				 <tr>
+				   <td  colspan="3" style="font-weight:bold; background:url(/BasicdataSystem/images/queryimg/bg4.png) repeat-x; border:1px solid #c5c5c5;">有效成分信息</td>
+				 </tr>
+				 <tr>
+				    <td width="80" class="tab_lef_bot" style="background-color:#f5f5f5;font-weight:600">有效成分</td>
+					 <td width="80" class="tab_lef_bot" style="background-color:#f5f5f5;font-weight:600">有效成分英文名</td>
+					 <td width="180" class="tab_lef_bot_rig" style="background-color:#f5f5f5;font-weight:600">有效成分含量</td>
+			    </tr>
+			     
+			    <tr>
+				    <td class="tab_lef_bot">茚虫威</td>
+					<td class="tab_lef_bot">indoxacarb</td>
+					<td class="tab_lef_bot_rig">15%</td>
+				   
+				 </tr>
+				 
+				</table>
+				<table width="636" id="reg" cellspacing="0" cellpadding="0" >
+				 <tr>
+				   <td  colspan="4" style="font-weight:bold; background:url(/BasicdataSystem/images/queryimg/bg4.png) repeat-x; border:1px solid #c5c5c5;">制剂用药量信息</td>
+				 </tr>
+					 <tr>
+					    <td width="110" class="tab_lef_bot" style="background-color:#f5f5f5;font-weight:600">作物/场所</td>
+					    <td width="80" class="tab_lef_bot" style="background-color:#f5f5f5;font-weight:600">防治对象</td>
+					    <td width="110" class="tab_lef_bot" style="background-color:#f5f5f5;font-weight:600">用药量（制剂量/亩）</td>
+					     <td width="80" class="tab_lef_bot_rig" style="background-color:#f5f5f5;font-weight:600">施用方法</td>
+					 </tr>
+				  
+					 <tr>
+					 	<td class="tab_lef_bot">水稻</td>
+					    <td class="tab_lef_bot">稻纵卷叶螟</td>
+					    <td class="tab_lef_bot" >14-16毫升/亩</td>
+					    <td class="tab_lef_bot_rig">喷雾</td>
+					 </tr>
+				 
+				</table>
+   				
+
+   
+</div>
+<div style="height:110px;"></div>
+</body>
+<script type="text/javascript">
+
+</script>
