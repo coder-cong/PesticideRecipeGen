@@ -172,3 +172,11 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# IDE
+.vscode
+.idea
+.pycharm
+
+# 输出结果文件夹
+process_out
