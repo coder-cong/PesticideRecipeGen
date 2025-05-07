@@ -12,3 +12,5 @@ Using large language models to generate pesticide formulas, this is my mentor's 
 
 ## train文件夹
 模型训练各阶段代码
+
+test
