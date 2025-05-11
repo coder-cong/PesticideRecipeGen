@@ -156,7 +156,7 @@ async def create_chat_completion(request: ChatCompletionRequest):
 
 @app.post('/export')
 async def export_to_excel(data: dict = Body(...)):
-    text = data.get('text', '')
+    text = data.get('data', '')
     
     print(text)
 

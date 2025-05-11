@@ -232,7 +232,7 @@ import axios from 'axios';
 export const handleExportToExcel = async (message: RequestMessage) => {
   console.log(message);
   try {
-    const response = await axios.post('http://localhost:8421/export', {
+    const response = await axios.post('http://219.216.65.87:8421/export', { //此处使用IP地址为3090服务器ip地址
       data: getMessageTextContent(message)
     }, {
       responseType: 'blob' // 确保接收的是二进制数据
