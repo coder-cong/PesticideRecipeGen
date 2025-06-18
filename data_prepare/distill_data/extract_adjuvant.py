@@ -88,7 +88,7 @@ def extract_to_json():
     # 记录所有助剂的链接
     all_types_url = []
     # 获取到所有助剂页面的链接
-    with open("./WDG.html","r",encoding="utf-8") as f:
+    with open("./html/WDG.html","r",encoding="utf-8") as f:
         soup = BeautifulSoup(f.read(),'lxml')
         all_div = soup.find_all("div",class_="lelm")
         all_a = all_div[0].find_all("a")

@@ -5,7 +5,7 @@ import requests
 
 # 提取所有的链接
 def get_urls():
-    with open("WDG_formulation_list.html","r",encoding="utf-8") as f:
+    with open("./html/WDG_formulation_list.html","r",encoding="utf-8") as f:
         content = f.read()
         soup = BeautifulSoup(content,"lxml")
         url_list = soup.find(class_="lelm").find_all("a")
