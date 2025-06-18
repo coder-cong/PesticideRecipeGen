@@ -104,11 +104,61 @@ def extract_to_json():
     with open("output.json",mode="w",encoding="utf-8") as f:
         json.dump(all_aux,f,ensure_ascii=False)
 
+        
 def process_to_kv():
     """
-    将extract_to_json获取到的json形式的数据做进一步处理
+    将extract_to_json获取到的json形式的数据做进一步处理，
+    形成剂型数据为键，值为表中所有助剂字典的列表。
     """
-    with open("output.json","r",encoding="utf-8")
+    with open("output.json","r",encoding="utf-8") as f:
+        obj = json.load(f)
+    
+    res_dict = {}
+    # 外层循环处理每个表格
+    for aux_list in obj:
+        if not aux_list: # 避免处理空列表（空表格）
+            continue
+        header = aux_list[0] # 表格的第一行是表头
+        
+        # 确定当前表格的剂型
+        # 根据要求，整张表剂型是一样的，需要找到表中第一个不为空的剂型
+        current_table_formulation_type = None
+        for row_idx, row in enumerate(aux_list):
+            if row_idx == 0: # 跳过表头行
+                continue
+            
+            # 检查当前行的第一个元素（剂型）是否非空且非全空格
+            if row[0] and row[0].strip() != "":
+                current_table_formulation_type = row[0].strip()
+                break # 找到第一个非空剂型后就停止查找
+        
+        # 如果整个表格都没有找到有效的剂型（例如，所有行的剂型都是空字符串），则跳过此表格
+        if current_table_formulation_type is None:
+            # 可以选择打印警告信息或直接跳过
+            # print(f"Warning: Could not determine valid formulation type for table starting with header: {header}")
+            continue
+        # 遍历数据行（跳过表头行）
+        for row in aux_list[1:]:
+            additive_data = {}
+            # 构建助剂字典
+            for i, col_value in enumerate(row):
+                # 确保索引不会超出header的范围
+                if i < len(header):
+                    additive_data[header[i]] = col_value
+            
+            # 将助剂字典添加到对应剂型下的列表中
+            # 如果该剂型还没有对应的列表，则先创建一个
+            if current_table_formulation_type not in res_dict:
+                res_dict[current_table_formulation_type] = []
+            res_dict[current_table_formulation_type].append(additive_data)
+            
+    return res_dict      
 
 if __name__ == "__main__":
-   pass 
+    # final_data = process_to_kv()
+    # with open("Pesticide_adjuvant.json","w",encoding="utf-8") as f:
+    #     json.dump(final_data,f,ensure_ascii=False)
+    with open("Pesticide_adjuvant.json","r",encoding="utf-8") as f:
+        obj = json.load(f)
+        for k,v in obj.items():
+            print(f"剂型：{k}，数量：{len(v)}")
