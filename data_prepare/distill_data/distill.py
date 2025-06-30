@@ -76,18 +76,6 @@ def distill_adjuvants_from_firm(adjuvant_types, firms):
 def distill_formulation():
     PROMPT = """
     你是一个农药配方生成专家，需要为我生成尽可能详细的农药配方，请确保助剂类型尽可能完备，如果需要的助剂没有给出请自行选择合适的具体的助剂,需要生成的配方名称为：{formulation_name}(注意给出的配方名称中可能含有多个不同的有效成分含量，选择其中一个生成即可),可以使用的助剂如下：{adjuvants},注意需要以json格式返回，要求为"{{"name":配方名称,"active_ingredients":[{{"name":有效成分名(具体到型号),"function":作用,"content":xx%}}]}}"
-    """
-    PROMPT_TEMPLATE = """
-    你是一位顶尖的农药配方生成专家。请根据我提供的配方名称和建议的助剂列表，生成一个专业、详细且完整的农药配方。
-    **任务要求：**
-    1.  **配方名称：** {formulation_name}
-    2.  **核心任务：** 基于上述配方名称，设计一个完整的配方。请务必包含名称中提到的所有有效成分及其含量。
-    3.  **助剂选择：**
-        - 优先从以下【建议助剂列表】中选择合适的助剂。
-        - 如果列表中的助剂不适用或不充分，请你凭借专业知识，自行选择并补充其他必要的助剂（如润湿剂、分散剂、乳化剂、增稠剂、防冻剂、溶剂等），以确保配方稳定有效。
-        - **建议助剂列表：** {adjuvants}
-    4.  **含量要求：** 请确保所有成分（有效成分、所有助剂、载体/溶剂）的百分比含量总和精确到100%。
-    5.  **输出格式：** 必须严格按照以下JSON格式返回，不要包含任何额外的解释或说明文字。
     **JSON格式定义：**
     ```json
     {{
@@ -112,6 +100,18 @@ def distill_formulation():
     }}
     }}
     ```
+    """
+    PROMPT_TEMPLATE = """
+    你是一位顶尖的农药配方生成专家。请根据我提供的配方名称和建议的助剂列表，生成一个专业、详细且完整的农药配方。
+    **任务要求：**
+    1.  **配方名称：** {formulation_name}
+    2.  **核心任务：** 基于上述配方名称，设计一个完整的配方。请务必包含名称中提到的所有有效成分及其含量。
+    3.  **助剂选择：**
+        - 优先从以下【建议助剂列表】中选择合适的助剂。
+        - 如果列表中的助剂不适用或不充分，请你凭借专业知识，自行选择并补充其他必要的助剂（如润湿剂、分散剂、乳化剂、增稠剂、防冻剂、溶剂等），以确保配方稳定有效。
+        - **建议助剂列表：** {adjuvants}
+    4.  **含量要求：** 请确保所有成分（有效成分、所有助剂、载体/溶剂）的百分比含量总和精确到100%。
+    5.  **输出格式：** 配方必须以表格形式返回，包含具体型号,作用,以及含量，除了输出配方内容外，还需要给出对配方成分选择的解释说明
     **备注**: 除了助剂具体型号和配方名称外，其余尽量使用中文进行输出
     """
     result = {}
@@ -119,11 +119,11 @@ def distill_formulation():
         with open("../../data/distill/Pesticide_adjuvant.json", "r", encoding="utf-8") as adjs:
             adjuvants = json.load(adjs)
             types = json.load(f)
-            for type in types:
+            for pesticide_type in types:
                 adj_result = []
-                result[type] = adj_result
-                adj_list = concat_adjs(adjuvants[type])
-                for formulation in types[type]:
+                result[pesticide_type] = adj_result
+                adj_list = concat_adjs(adjuvants[pesticide_type])
+                for formulation in types[pesticide_type]:
                     # print(PROMPT_TEMPLATE.format(
                     #     formulation_name=formulation, adjuvants=adj_list))
                     chat_completion = client.chat.completions.create(
@@ -135,15 +135,14 @@ def distill_formulation():
                             }
                         ],
                         # 替换成你先想用的模型全称， 模型全称可以在DMXAPI 模型价格页面找到并复制。
-                        model="gemini-2.5-pro-preview-06-05-ssvip",
+                        model="gemini-2.5-pro-thinking",
                     )
-                    formulation_obj = extract_and_parse_json(
-                        chat_completion.choices[0].message.content)
-                    print(formulation_obj)
-                    adj_result.append(formulation_obj)
-            with open("distill_formulation.json", "w", encoding="utf-8") as f:
-                json.dump(result, f, indent=4)
-            return
+                    # formulation_obj = extract_and_parse_json(
+                    #     chat_completion.choices[0].message.content)
+                    print(chat_completion.choices[0].message.content)
+                    # adj_result.append(formulation_obj)
+                with open(f"distill_formulation_{pesticide_type}.json", "w", encoding="utf-8") as f:
+                    json.dump(result, f, indent=4)
 
 
 if __name__ == "__main__":
