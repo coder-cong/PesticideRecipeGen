@@ -1,7 +1,7 @@
 """
 从gemini 2.5 pro中蒸馏数据
 """
-
+import os
 import json
 from openai import OpenAI
 from util.utils import connect_to_mysql
@@ -73,76 +73,35 @@ def distill_adjuvants_from_firm(adjuvant_types, firms):
                 return
 
 
-def distill_formulation():
-    PROMPT = """
-    你是一个农药配方生成专家，需要为我生成尽可能详细的农药配方，请确保助剂类型尽可能完备，如果需要的助剂没有给出请自行选择合适的具体的助剂,需要生成的配方名称为：{formulation_name}(注意给出的配方名称中可能含有多个不同的有效成分含量，选择其中一个生成即可),可以使用的助剂如下：{adjuvants},注意需要以json格式返回，要求为"{{"name":配方名称,"active_ingredients":[{{"name":有效成分名(具体到型号),"function":作用,"content":xx%}}]}}"
-    **JSON格式定义：**
-    ```json
-    {{
-    "name": "完整的配方名称",
-    "total_content": "100%",
-    "active_ingredients": [
-        {{
-        "name": "有效成分的具体化学名",
-        "content": "xx%"
-        }}
-    ],
-    "adjuvants": [
-        {{
-        "name": "具体的助剂商品名或化学名",
-        "type": "助剂类型 (例如: 乳化剂, 润湿剂, 防冻剂)",
-        "content": "xx%"
-        }}
-    ],
-    "carrier_or_solvent": {{
-        "name": "载体或溶剂的名称 (例如: 水, 溶剂油)",
-        "content": "补足至100%的剩余含量"
-    }}
-    }}
-    ```
-    """
-    PROMPT_TEMPLATE = """
-    你是一位顶尖的农药配方生成专家。请根据我提供的配方名称和建议的助剂列表，生成一个专业、详细且完整的农药配方。
-    **任务要求：**
-    1.  **配方名称：** {formulation_name}
-    2.  **核心任务：** 基于上述配方名称，设计一个完整的配方。请务必包含名称中提到的所有有效成分及其含量。
-    3.  **助剂选择：**
-        - 优先从以下【建议助剂列表】中选择合适的助剂。
-        - 如果列表中的助剂不适用或不充分，请你凭借专业知识，自行选择并补充其他必要的助剂（如润湿剂、分散剂、乳化剂、增稠剂、防冻剂、溶剂等），以确保配方稳定有效。
-        - **建议助剂列表：** {adjuvants}
-    4.  **含量要求：** 请确保所有成分（有效成分、所有助剂、载体/溶剂）的百分比含量总和精确到100%。
-    5.  **输出格式：** 配方必须以表格形式返回，包含具体型号,作用,以及含量，除了输出配方内容外，还需要给出对配方成分选择的解释说明
-    **备注**: 除了助剂具体型号和配方名称外，其余尽量使用中文进行输出
-    """
-    result = {}
-    with open("../../data/distill/formulation_names.json", "r", encoding="utf-8") as f:
-        with open("../../data/distill/Pesticide_adjuvant.json", "r", encoding="utf-8") as adjs:
+def distill_formulation(prompts_file, formulation_names_file, adjuvants_file):
+    with open(prompts_file, "r", encoding="utf-8") as f:
+        PROMPTS = json.load(f)
+    with open(formulation_names_file, "r", encoding="utf-8") as f:
+        with open(adjuvants_file, "r", encoding="utf-8") as adjs:
             adjuvants = json.load(adjs)
             types = json.load(f)
             for pesticide_type in types:
-                adj_result = []
-                result[pesticide_type] = adj_result
+                result = []
                 adj_list = concat_adjs(adjuvants[pesticide_type])
                 for formulation in types[pesticide_type]:
-                    # print(PROMPT_TEMPLATE.format(
-                    #     formulation_name=formulation, adjuvants=adj_list))
+                    prompt = PROMPTS[pesticide_type].format(
+                        name=formulation, adjuvants=adj_list)
                     chat_completion = client.chat.completions.create(
                         messages=[
                             {
                                 "role": "user",
-                                "content": PROMPT_TEMPLATE.format(
-                                    formulation_name=formulation, adjuvants=adj_list)
+                                "content": prompt
                             }
                         ],
                         # 替换成你先想用的模型全称， 模型全称可以在DMXAPI 模型价格页面找到并复制。
                         model="gemini-2.5-pro-thinking",
                     )
-                    # formulation_obj = extract_and_parse_json(
-                    #     chat_completion.choices[0].message.content)
                     print(chat_completion.choices[0].message.content)
-                    # adj_result.append(formulation_obj)
+                    result.append(
+                        {"prompt": prompt, "response": chat_completion.choices[0].message.content})
                 with open(f"distill_formulation_{pesticide_type}.json", "w", encoding="utf-8") as f:
                     json.dump(result, f, indent=4)
+                    print(f"{pesticide_type} completed")
 
 
 if __name__ == "__main__":
@@ -150,4 +109,7 @@ if __name__ == "__main__":
         "C:/Projs/PesticideRecipeGen/data_prepare/distill_data/adjuvant_producer.txt")
     # distill_adjuvants_from_firm(
     #     "C:/Projs/PesticideRecipeGen/data/distill/type_adjuvant.json", firms)
-    distill_formulation()
+    distill_formulation(
+        prompts_file="C:/Projs/PesticideRecipeGen/data_prepare/distill_data/prompts.json",
+        formulation_names_file="C:/Projs/PesticideRecipeGen/data/distill/formulation_names.json",
+        adjuvants_file="C:/Projs/PesticideRecipeGen/data/distill/Pesticide_adjuvant.json")
