@@ -1,0 +1,1 @@
+nohup python distill.py > distill.log &
