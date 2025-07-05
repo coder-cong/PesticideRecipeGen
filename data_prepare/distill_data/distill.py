@@ -164,6 +164,22 @@ def save_distill_formulation_result(file_path, result):
         json.dump(old_data, f, ensure_ascii=False, indent=4)
 
 
+def distill_data_to_Alpaca(data_dir, save_dir):
+    files = os.listdir(data_dir)
+    result = []
+    for data_file in files:
+        path = os.path.join(data_dir, data_file)
+        with open(path, "r", encoding="utf-8") as f:
+            distill_data = json.load(f)
+            for formulation in distill_data:
+                data = {}
+                data["instruction"] = formulation["prompt"]
+                data["output"] = formulation["response"]
+                result.append(data)
+    with open(os.path.join(save_dir, "distill_data_alpaca.json"), "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=4)
+
+
 if __name__ == "__main__":
     firms = get_firms_str(
         "/root/projs/PesticideRecipeGen/data_prepare/distill_data/adjuvant_producer.txt")
@@ -173,7 +189,10 @@ if __name__ == "__main__":
     #     prompts_file="/root/projs/PesticideRecipeGen/data_prepare/distill_data/prompts.json",
     #     formulation_names_file="/root/projs/PesticideRecipeGen/data/distill/formulation_names.json",
     #     adjuvants_file="/root/projs/PesticideRecipeGen/data/distill/Pesticide_adjuvant.json")
-    distill_multi_worker(
-        prompts_file="/root/projs/PesticideRecipeGen/data_prepare/distill_data/prompts.json",
-        formulation_names_file="/root/projs/PesticideRecipeGen/data/distill/formulation_names.json",
-        adjuvants_file="/root/projs/PesticideRecipeGen/data/distill/Pesticide_adjuvant.json")
+    # 多线程蒸馏数据
+    # distill_multi_worker(
+    #     prompts_file="/root/projs/PesticideRecipeGen/data_prepare/distill_data/prompts.json",
+    #     formulation_names_file="/root/projs/PesticideRecipeGen/data/distill/formulation_names.json",
+    #     adjuvants_file="/root/projs/PesticideRecipeGen/data/distill/Pesticide_adjuvant.json")
+    distill_data_to_Alpaca(
+        "/root/projs/PesticideRecipeGen/data_prepare/distill_data/out", "/root/projs/PesticideRecipeGen/data/distill")
