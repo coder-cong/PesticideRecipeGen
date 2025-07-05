@@ -174,6 +174,7 @@ def distill_data_to_Alpaca(data_dir, save_dir):
             for formulation in distill_data:
                 data = {}
                 data["instruction"] = formulation["prompt"]
+                data["input"] = ""
                 data["output"] = formulation["response"]
                 result.append(data)
     with open(os.path.join(save_dir, "distill_data_alpaca.json"), "w", encoding="utf-8") as f:
