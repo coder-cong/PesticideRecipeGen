@@ -4,8 +4,9 @@
 import os
 import json
 from openai import OpenAI
-from util.utils import connect_to_mysql
-from util.utils import extract_and_parse_json
+from concurrent.futures import ThreadPoolExecutor, as_completed
+# from util.utils import connect_to_mysql
+# from util.utils import extract_and_parse_json
 
 
 # ------------------------------------------------------------------------------------
@@ -73,43 +74,106 @@ def distill_adjuvants_from_firm(adjuvant_types, firms):
                 return
 
 
-def distill_formulation(prompts_file, formulation_names_file, adjuvants_file):
+def distill_multi_worker(prompts_file, formulation_names_file, adjuvants_file):
+    """
+    每种剂型使用一个线程来蒸馏
+    """
     with open(prompts_file, "r", encoding="utf-8") as f:
         PROMPTS = json.load(f)
-    with open(formulation_names_file, "r", encoding="utf-8") as f:
-        with open(adjuvants_file, "r", encoding="utf-8") as adjs:
-            adjuvants = json.load(adjs)
-            types = json.load(f)
-            for pesticide_type in types:
-                result = []
-                adj_list = concat_adjs(adjuvants[pesticide_type])
-                for formulation in types[pesticide_type]:
-                    prompt = PROMPTS[pesticide_type].format(
-                        name=formulation, adjuvants=adj_list)
-                    chat_completion = client.chat.completions.create(
-                        messages=[
-                            {
-                                "role": "user",
-                                "content": prompt
-                            }
-                        ],
-                        # 替换成你先想用的模型全称， 模型全称可以在DMXAPI 模型价格页面找到并复制。
-                        model="gemini-2.5-pro-thinking",
-                    )
-                    print(chat_completion.choices[0].message.content)
-                    result.append(
-                        {"prompt": prompt, "response": chat_completion.choices[0].message.content})
-                with open(f"distill_formulation_{pesticide_type}.json", "w", encoding="utf-8") as f:
-                    json.dump(result, f, indent=4)
-                    print(f"{pesticide_type} completed")
+    with open(formulation_names_file, "r", encoding="utf-8") as f, open(adjuvants_file, "r", encoding="utf-8") as adjs:
+        types = json.load(f)
+        type_key_list = list(types)
+        adjuvants = json.load(adjs)
+    with ThreadPoolExecutor(max_workers=len(type_key_list)) as executor:
+        print("主线程开始")
+        futures = []
+        for i in range(len(type_key_list)):
+            futures.append(executor.submit(distill_formulation,
+                           i, types, type_key_list, adjuvants, PROMPTS))
+        # 使用 as_completed 来获取结果
+        # 哪个任务先完成，这个循环就先处理哪个 future
+        for future in as_completed(futures):
+            try:
+                result = future.result()
+                print(result)
+            except Exception as exc:
+                print(f"一个任务生成了异常: {exc}")
+    print("所有线程均已完成")
+
+
+def distill_formulation(type_idx, types, type_key_list, adjuvants, PROMPTS):
+    """
+    增加从断点处继续蒸馏：使用process文件记录蒸馏进度，包括剂型和配方名
+    每次开始读取上次蒸馏的位置然后继续蒸馏
+    """
+    pesticide_type = type_key_list[type_idx]
+    formulations = types[pesticide_type]
+    save_path = f"/root/projs/PesticideRecipeGen/data_prepare/distill_data/out/distill_formulation_{pesticide_type}.json"
+    log_path = f"/root/projs/PesticideRecipeGen/data_prepare/distill_data/process/{pesticide_type}"
+    if os.path.isfile(log_path):
+        with open(log_path, "r", encoding="utf-8") as f:
+            process = json.load(f)
+    else:
+        process = {
+            "formulation": 0
+        }
+    formulation_idx = process["formulation"]
+    print(
+        f"Resume from {pesticide_type},{formulation_idx}:{formulations[formulation_idx]}")
+    try:
+        result = []
+        adj_list = concat_adjs(adjuvants[pesticide_type])
+        while formulation_idx < len(types[pesticide_type]):
+            formulation = types[pesticide_type][formulation_idx]
+            prompt = PROMPTS[pesticide_type].format(
+                name=formulation, adjuvants=adj_list)
+            chat_completion = client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                # 替换成你先想用的模型全称， 模型全称可以在DMXAPI 模型价格页面找到并复制。
+                model="gemini-2.5-pro-thinking",
+            )
+            print(chat_completion.choices[0].message.content)
+            result.append(
+                {"type": pesticide_type, "formulation_idx": formulation_idx, "formulation": formulation, "prompt": prompt, "response": chat_completion.choices[0].message.content})
+            formulation_idx += 1
+        save_distill_formulation_result(
+            save_path, result)
+    except Exception as e:
+        print("出错了，蒸馏进度保存到了process文件中！！！！")
+        print(e)
+    process["formulation"] = formulation_idx
+    with open(log_path, "w", encoding="utf-8") as log:
+        json.dump(process, log, ensure_ascii=False, indent=4)
+    save_distill_formulation_result(
+        save_path, result)
+
+
+def save_distill_formulation_result(file_path, result):
+    if os.path.isfile(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            old_data = json.load(f)
+    else:
+        old_data = []
+    old_data.extend(result)
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(old_data, f, ensure_ascii=False, indent=4)
 
 
 if __name__ == "__main__":
     firms = get_firms_str(
-        "C:/Projs/PesticideRecipeGen/data_prepare/distill_data/adjuvant_producer.txt")
+        "/root/projs/PesticideRecipeGen/data_prepare/distill_data/adjuvant_producer.txt")
     # distill_adjuvants_from_firm(
     #     "C:/Projs/PesticideRecipeGen/data/distill/type_adjuvant.json", firms)
-    distill_formulation(
-        prompts_file="C:/Projs/PesticideRecipeGen/data_prepare/distill_data/prompts.json",
-        formulation_names_file="C:/Projs/PesticideRecipeGen/data/distill/formulation_names.json",
-        adjuvants_file="C:/Projs/PesticideRecipeGen/data/distill/Pesticide_adjuvant.json")
+    # distill_formulation(
+    #     prompts_file="/root/projs/PesticideRecipeGen/data_prepare/distill_data/prompts.json",
+    #     formulation_names_file="/root/projs/PesticideRecipeGen/data/distill/formulation_names.json",
+    #     adjuvants_file="/root/projs/PesticideRecipeGen/data/distill/Pesticide_adjuvant.json")
+    distill_multi_worker(
+        prompts_file="/root/projs/PesticideRecipeGen/data_prepare/distill_data/prompts.json",
+        formulation_names_file="/root/projs/PesticideRecipeGen/data/distill/formulation_names.json",
+        adjuvants_file="/root/projs/PesticideRecipeGen/data/distill/Pesticide_adjuvant.json")
