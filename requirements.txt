@@ -1,3 +1,15 @@
+# backend
+fastapi
+openpyxl
+openai
+transformers
+uvicorn
+torch
+accelerate
+bitsandbytes
+peft
+
+# data prepare
 beautifulsoup4
 lxml
 requests

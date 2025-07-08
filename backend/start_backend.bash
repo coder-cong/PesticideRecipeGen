@@ -1,0 +1,1 @@
+nohup /root/miniconda3/envs/pesticide/bin/python backend.py > run.log &
