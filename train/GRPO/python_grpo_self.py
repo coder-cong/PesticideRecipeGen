@@ -4,7 +4,8 @@ import torch
 import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
-from transformers import AutoTokenizer, AutoModelForCausalLM, get_scheduler
+from transformers import AutoTokenizer, AutoModelForCausalLM, get_scheduler, BitsAndBytesConfig
+from accelerate import Accelerator, init_empty_weights
 from peft import LoraConfig, get_peft_model, TaskType
 import torch.nn.functional as F
 from tqdm import tqdm
@@ -13,7 +14,7 @@ import random
 import argparse
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
-from util.get_dataset import read_gsmk8k
+from util import read_gsmk8k
 # 设置日志
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -136,7 +137,7 @@ def compute_rewards(responses, expected_answer):
     return rewards, log_info
 
 
-def compute_log_probs(model, tokenizer, prompt_tokens, response, prompt_length, device):
+def compute_log_probs(model, is_ref, tokenizer, prompt_tokens, response, prompt_length, device):
     """计算模型对响应的对数概率"""
     # 编码响应
     response_tokens = tokenizer(
@@ -148,8 +149,13 @@ def compute_log_probs(model, tokenizer, prompt_tokens, response, prompt_length, 
     full_attention_mask = torch.ones_like(full_input_ids).to(device)
 
     # 计算模型输出
-    outputs = model(input_ids=full_input_ids,
-                    attention_mask=full_attention_mask)
+    if is_ref:
+        outputs = reference_model_infer(
+            model, full_input_ids, full_attention_mask)
+    else:
+        outputs = model(input_ids=full_input_ids,
+                        attention_mask=full_attention_mask)
+
     logits = outputs.logits[:, prompt_length - 1:-1, :]
 
     # 计算对数概率
@@ -209,16 +215,30 @@ def compute_grpo_loss(policy_logprobs, reference_logprobs, rewards, beta=0.1):
     return loss
 
 
+def reference_model_infer(policy_model, full_input_ids, full_attention_mask):
+    with policy_model.disable_adapter():
+        outputs = policy_model(input_ids=full_input_ids,
+                               attention_mask=full_attention_mask)
+    return outputs
+
+
 def main(args):
     """主训练函数"""
     # 设置随机种子
     set_seed(args.seed)
 
-    # 创建输出目录
-    os.makedirs(args.output_dir, exist_ok=True)
+    # 初始化Accelerator
+    accelerator = Accelerator(log_with="wandb", project_dir="/data/train/grpo")
+    accelerator.print(
+        f"Using {accelerator.num_processes} GPUs with DeepSpeed and QLoRA.")
 
-    # 初始化tensorboard
-    tb_writer = SummaryWriter(log_dir=os.path.join(args.output_dir, "logs"))
+    if accelerator.is_main_process:
+        # 创建输出目录
+        os.makedirs(args.output_dir, exist_ok=True)
+
+        # 初始化tensorboard
+        tb_writer = SummaryWriter(
+            log_dir=os.path.join(args.output_dir, "logs"))
 
     # 加载tokenizer
     tokenizer = AutoTokenizer.from_pretrained(args.model_path)
@@ -226,10 +246,18 @@ def main(args):
         tokenizer.pad_token = tokenizer.eos_token
 
     # 加载策略模型
+    # 配置量化
+    # 配置4-bit量化
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16,  # 使用bfloat16进行计算
+        bnb_4bit_use_double_quant=True,
+    )
     policy_model = AutoModelForCausalLM.from_pretrained(
         args.model_path,
         torch_dtype=torch.bfloat16 if args.bf16 else torch.float32,
-        load_in_8bit=True  # 添加8位量化加载
+        quantization_config=bnb_config,
     )
 
     # 应用LoRA (如果启用)
@@ -246,21 +274,14 @@ def main(args):
         policy_model = get_peft_model(policy_model, lora_config)
         policy_model.print_trainable_parameters()
 
-    # 加载参考模型 (与策略模型相同的初始权重，但不训练)
-    reference_model = AutoModelForCausalLM.from_pretrained(
-        args.model_path,
-        torch_dtype=torch.bfloat16 if args.bf16 else torch.float32,
-        load_in_8bit=True  # 添加8位量化加载
-    )
-
     # 将模型移动到设备
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    policy_model = policy_model.to(device)
-    reference_model = reference_model.to(device)
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # policy_model = policy_model.to(device)
+    # reference_model = reference_model.to(device)
 
     # 冻结参考模型
-    for param in reference_model.parameters():
-        param.requires_grad = False
+    # for param in reference_model.parameters():
+    #     param.requires_grad = False
 
     # 加载数据集
     dataset = read_gsmk8k(
@@ -283,6 +304,9 @@ def main(args):
         num_warmup_steps=int(num_training_steps * 0.1),
         num_training_steps=num_training_steps
     )
+
+    policy_model, optimizer, lr_scheduler, data_loader = accelerator.prepare(policy_model,
+                                                                             optimizer, lr_scheduler, data_loader)
 
     # 开始训练
     global_step = 0
@@ -325,11 +349,12 @@ def main(args):
             for response in responses:
                 policy_logprob = compute_log_probs(
                     policy_model,
+                    False,
                     tokenizer,
                     prompt_tokens,
                     response,
                     prompt_length,
-                    device
+                    accelerator.device
                 )
                 policy_logprobs.append(policy_logprob)
 
@@ -338,19 +363,20 @@ def main(args):
             with torch.no_grad():
                 for response in responses:
                     reference_logprob = compute_log_probs(
-                        reference_model,
+                        policy_model,
+                        True,
                         tokenizer,
                         prompt_tokens,
                         response,
                         prompt_length,
-                        device
+                        accelerator.device
                     )
                     reference_logprobs.append(reference_logprob)
 
             # 转换为张量
             policy_logprobs = torch.cat(policy_logprobs)
             reference_logprobs = torch.cat(reference_logprobs)
-            rewards_tensor = torch.tensor(rewards, device=device)
+            rewards_tensor = torch.tensor(rewards, device=accelerator.device)
 
             # 计算GRPO损失
             loss = compute_grpo_loss(
@@ -361,103 +387,109 @@ def main(args):
             )
 
             # 反向传播和优化
-            loss.backward()
+            accelerator.backward(loss)
 
             # 梯度裁剪
             if args.max_grad_norm > 0:
-                torch.nn.utils.clip_grad_norm_(
+                accelerator.clip_grad_norm_(
                     policy_model.parameters(), args.max_grad_norm)
 
             optimizer.step()
             lr_scheduler.step()
             optimizer.zero_grad()
 
-            # 更新统计信息
-            epoch_loss += loss.item()
-            epoch_rewards.extend(rewards)
+            if accelerator.is_main_process:
+                # 更新统计信息
+                epoch_loss += loss.item()
+                epoch_rewards.extend(rewards)
 
-            # 更新进度条
-            progress_bar.set_postfix({
-                'loss': loss.item(),
-                'avg_reward': sum(rewards) / len(rewards) if rewards else 0
-            })
+                # 更新进度条
+                progress_bar.set_postfix({
+                    'loss': loss.item(),
+                    'avg_reward': sum(rewards) / len(rewards) if rewards else 0
+                })
 
-            # 记录到tensorboard
-            tb_writer.add_scalar('loss', loss.item(), global_step)
-            tb_writer.add_scalar('avg_reward', sum(
-                rewards) / len(rewards) if rewards else 0, global_step)
-            tb_writer.add_scalar(
-                'learning_rate', optimizer.param_groups[0]['lr'], global_step)
+                # 记录到tensorboard
+                tb_writer.add_scalar('loss', loss.item(), global_step)
+                tb_writer.add_scalar('avg_reward', sum(
+                    rewards) / len(rewards) if rewards else 0, global_step)
+                tb_writer.add_scalar(
+                    'learning_rate', optimizer.param_groups[0]['lr'], global_step)
 
-            # 日志记录
-            if args.logging_steps > 0 and global_step % args.logging_steps == 0:
-                # 找出最佳响应
-                best_idx = np.argmax(rewards)
+                # 日志记录
+                if args.logging_steps > 0 and global_step % args.logging_steps == 0:
+                    # 找出最佳响应
+                    best_idx = np.argmax(rewards)
 
-                logger.info(
-                    f"Step {global_step} | Loss: {loss.item():.4f} | Avg Reward: {sum(rewards) / len(rewards):.4f}")
-                logger.info(f"问题: {question}")
-                logger.info(f"预期答案: {expected_answer}")
-                logger.info(f"最佳响应: {responses[best_idx]}")
-                logger.info(
-                    f"最佳提取答案: {log_info[best_idx]['extracted_answer']}")
+                    logger.info(
+                        f"Step {global_step} | Loss: {loss.item():.4f} | Avg Reward: {sum(rewards) / len(rewards):.4f}")
+                    logger.info(f"问题: {question}")
+                    logger.info(f"预期答案: {expected_answer}")
+                    logger.info(f"最佳响应: {responses[best_idx]}")
+                    logger.info(
+                        f"最佳提取答案: {log_info[best_idx]['extracted_answer']}")
 
-                # 记录标准化优势值
-                advantages = (rewards_tensor - rewards_tensor.mean()
-                              ) / (rewards_tensor.std() + 1e-8)
-                logger.info(f"标准化优势值: {advantages.cpu().numpy()}")
+                    # 记录标准化优势值
+                    advantages = (rewards_tensor - rewards_tensor.mean()
+                                  ) / (rewards_tensor.std() + 1e-8)
+                    logger.info(f"标准化优势值: {advantages.cpu().numpy()}")
 
-            # 保存检查点
-            if args.save_steps > 0 and global_step % args.save_steps == 0:
-                checkpoint_dir = os.path.join(
-                    args.output_dir, f"checkpoint-{global_step}")
-                os.makedirs(checkpoint_dir, exist_ok=True)
+                # 保存检查点
+                accelerator.wait_for_everyone()
+                if args.save_steps > 0 and global_step % args.save_steps == 0:
+                    checkpoint_dir = os.path.join(
+                        args.output_dir, f"checkpoint-{global_step}")
+                    os.makedirs(checkpoint_dir, exist_ok=True)
 
-                if args.use_lora:
-                    policy_model.save_pretrained(checkpoint_dir)
-                else:
-                    policy_model.save_pretrained(checkpoint_dir)
-                    tokenizer.save_pretrained(checkpoint_dir)
+                    if args.use_lora:
+                        policy_model.save_pretrained(checkpoint_dir)
+                    else:
+                        policy_model.save_pretrained(checkpoint_dir)
+                        tokenizer.save_pretrained(checkpoint_dir)
 
-                logger.info(f"保存检查点到 {checkpoint_dir}")
+                    logger.info(f"保存检查点到 {checkpoint_dir}")
 
-            global_step += 1
+                global_step += 1
 
-        # Epoch结束统计
-        avg_epoch_loss = epoch_loss / len(data_loader)
-        avg_epoch_reward = sum(epoch_rewards) / \
-            len(epoch_rewards) if epoch_rewards else 0
+        if accelerator.is_main_process:
+            # Epoch结束统计
+            avg_epoch_loss = epoch_loss / len(data_loader)
+            avg_epoch_reward = sum(epoch_rewards) / \
+                len(epoch_rewards) if epoch_rewards else 0
 
-        logger.info(
-            f"Epoch {epoch + 1} 完成: Avg Loss = {avg_epoch_loss:.4f}, Avg Reward = {avg_epoch_reward:.4f}")
+            logger.info(
+                f"Epoch {epoch + 1} 完成: Avg Loss = {avg_epoch_loss:.4f}, Avg Reward = {avg_epoch_reward:.4f}")
 
-        # 保存每个epoch的模型
-        epoch_dir = os.path.join(args.output_dir, f"epoch-{epoch + 1}")
-        os.makedirs(epoch_dir, exist_ok=True)
+            # 保存每个epoch的模型
+            epoch_dir = os.path.join(args.output_dir, f"epoch-{epoch + 1}")
+            os.makedirs(epoch_dir, exist_ok=True)
 
-        if args.use_lora:
-            policy_model.save_pretrained(epoch_dir)
-        else:
-            policy_model.save_pretrained(epoch_dir)
-            tokenizer.save_pretrained(epoch_dir)
+            accelerator.wait_for_everyone()
+            if args.use_lora:
+                policy_model.save_pretrained(epoch_dir)
+            else:
+                policy_model.save_pretrained(epoch_dir)
+                tokenizer.save_pretrained(epoch_dir)
 
-        logger.info(f"保存epoch模型到 {epoch_dir}")
+            logger.info(f"保存epoch模型到 {epoch_dir}")
 
     # 训练结束，保存最终模型
-    final_dir = os.path.join(args.output_dir, "final_model")
-    os.makedirs(final_dir, exist_ok=True)
+    accelerator.wait_for_every_one()
+    if accelerator.is_main_process:
+        final_dir = os.path.join(args.output_dir, "final_model")
+        os.makedirs(final_dir, exist_ok=True)
 
-    if args.use_lora:
-        policy_model.save_pretrained(final_dir)
-    else:
-        policy_model.save_pretrained(final_dir)
-        tokenizer.save_pretrained(final_dir)
+        if args.use_lora:
+            policy_model.save_pretrained(final_dir)
+        else:
+            policy_model.save_pretrained(final_dir)
+            tokenizer.save_pretrained(final_dir)
 
-    logger.info(f"保存最终模型到 {final_dir}")
-    logger.info("训练完成")
+        logger.info(f"保存最终模型到 {final_dir}")
+        logger.info("训练完成")
 
-    # 关闭tensorboard写入器
-    tb_writer.close()
+        # 关闭tensorboard写入器
+        tb_writer.close()
 
 
 if __name__ == "__main__":
@@ -465,11 +497,11 @@ if __name__ == "__main__":
 
     # 数据和模型参数
     parser.add_argument("--data_dir", type=str,
-                        default="/media/iiap/25df545d-3a24-4466-b58d-f96c46b9a3bf/数据集/gsm8k_chinese/data", help="GSM8K Chinese数据集目录")
+                        default="/root/data/gsm8k", help="GSM8K Chinese数据集目录")
     parser.add_argument("--split", type=str, default="train",
                         help="使用的数据集分割 ('train' 或 'test')")
     parser.add_argument("--model_path", type=str,
-                        default="/media/iiap/25df545d-3a24-4466-b58d-f96c46b9a3bf/LargeModel/Qwen2.5-0.5B-Instruct", help="预训练模型路径")
+                        default="/data/models/qwen2.5-7B", help="预训练模型路径")
     parser.add_argument("--output_dir", type=str,
                         default="./grpo_trained", help="输出目录")
 
@@ -507,5 +539,5 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=42, help="随机种子")
     parser.add_argument("--bf16", action="store_true", help="是否使用bfloat16精度")
 
-    args = parser.parse_args()
+    args, _ = parser.parse_known_args()
     main(args)

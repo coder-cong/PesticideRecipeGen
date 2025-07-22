@@ -1,3 +1,4 @@
+import pandas as pd
 import os
 import random
 import time
@@ -21,24 +22,29 @@ import skimage.io as io
 对于gan网络而言，单次的输入随机变量也是很重要的。这里我先改为一个一维变量尝试下
 
 '''
+
+
 def sort_strings(strings):
     sorted_strings = sorted(strings)
-    string_dict = {string: index for index, string in enumerate(sorted_strings)}
+    string_dict = {string: index for index,
+                   string in enumerate(sorted_strings)}
     return string_dict
 
 
-TEST=False
+TEST = False
 
 data_location = "../data"
 
 
-def num_to_onehot(num,total_num):
+def num_to_onehot(num, total_num):
 
-    ont_hot=torch.zeros([total_num])
-    ont_hot[num]=1
+    ont_hot = torch.zeros([total_num])
+    ont_hot[num] = 1
     return ont_hot
 
 #                                    T.Normalize(0.1370, 0.3081)
+
+
 def get_minist_dataset(name="mnist"):
     assert name in ['mnist']
     if name == 'mnist':
@@ -65,21 +71,21 @@ def get_fashion_minist_dataset(name="fashion_mnist"):
     assert name in ['fashion_mnist']
     if name == 'fashion_mnist':
         train = datasets.FashionMNIST(root=data_location,
-                               download=True,
-                               transform=T.Compose([
+                                      download=True,
+                                      transform=T.Compose([
 
-                                   T.ToTensor(),
+                                          T.ToTensor(),
 
-                               ]),
-                               train=True)
+                                      ]),
+                                      train=True)
         test = datasets.FashionMNIST(root=data_location,
-                              download=True,
-                              transform=T.Compose([
+                                     download=True,
+                                     transform=T.Compose([
 
-                                  T.ToTensor(),
+                                         T.ToTensor(),
 
-                              ]),
-                              train=False)
+                                     ]),
+                                     train=False)
     return train, test
 
 
@@ -87,21 +93,21 @@ def get_cifar10(name="fashion_mnist"):
     assert name in ['fashion_mnist']
     if name == 'fashion_mnist':
         train = datasets.CIFAR10(root=data_location,
-                               download=True,
-                               transform=T.Compose([
+                                 download=True,
+                                 transform=T.Compose([
 
-                                   T.ToTensor(),
+                                     T.ToTensor(),
 
-                               ]),
-                               train=True)
+                                 ]),
+                                 train=True)
         test = datasets.CIFAR10(root=data_location,
-                              download=True,
-                              transform=T.Compose([
+                                download=True,
+                                transform=T.Compose([
 
-                                  T.ToTensor(),
+                                    T.ToTensor(),
 
-                              ]),
-                              train=False)
+                                ]),
+                                train=False)
     return train, test
 
 
@@ -139,7 +145,6 @@ class dataset_from_image_folder(Dataset):
             '''
             img = self.trans(img)*255
 
-
         return img, label
 
     def __len__(self):
@@ -147,30 +152,31 @@ class dataset_from_image_folder(Dataset):
 
 
 if TEST:
-    dataser=dataset_from_image_folder('/home/iiap/桌面/资料/cifar-10/train')
+    dataser = dataset_from_image_folder('/home/iiap/桌面/资料/cifar-10/train')
 
-    data=torch.utils.data.DataLoader(dataser,batch_size=100,shuffle=True,num_workers=16)
+    data = torch.utils.data.DataLoader(
+        dataser, batch_size=100, shuffle=True, num_workers=16)
 
-    for i,j in data:
+    for i, j in data:
         print(i.shape)
         print(j)
 
 
 class noisy_image_generator(Dataset):
 
-    def __init__(self,channle :  int ,  width : int ,height : int):
+    def __init__(self, channle:  int,  width: int, height: int):
 
         self.channel = channle
 
-        self.height  =  height
+        self.height = height
 
         self.width = width
 
     def __getitem__(self, item):
 
-        img = torch.rand((self.channel,self.width,self.height)).float()*254
+        img = torch.rand((self.channel, self.width, self.height)).float()*254
 
-        return  img
+        return img
 
     def __len__(self):
         return int(1e10)
@@ -178,7 +184,7 @@ class noisy_image_generator(Dataset):
 
 class noisy_vector_generator(Dataset):
 
-    def __init__(self,length : int ):
+    def __init__(self, length: int):
 
         self.length = length
 
@@ -186,20 +192,22 @@ class noisy_vector_generator(Dataset):
 
         img = torch.rand(self.length)
 
-        return  img
+        return img
 
     def __len__(self):
         return int(1e10)
 
+
 class onehot_vector_generator(Dataset):
 
-    def __init__(self,classnum):
+    def __init__(self, classnum):
 
-        self.class_num= classnum
+        self.class_num = classnum
 
     def __getitem__(self, item):
 
-        img=torch.nn.functional.one_hot(torch.tensor(random.randint(0,9)),self.class_num).float()
+        img = torch.nn.functional.one_hot(torch.tensor(
+            random.randint(0, 9)), self.class_num).float()
 
         return img
 
@@ -208,10 +216,9 @@ class onehot_vector_generator(Dataset):
         return int(1e10)
 
 
-
 class get_translation_from_raw_text_en2zh(Dataset):
 
-    def __init__(self,en_text_path:str,zh_text_path:str):
+    def __init__(self, en_text_path: str, zh_text_path: str):
         '''
         :discription: 两边都是一行对应一句话
         :return: batchsize,
@@ -222,17 +229,16 @@ class get_translation_from_raw_text_en2zh(Dataset):
         self.text_en = open(en_text_path)
         self.text_zh = open(zh_text_path)
 
-
-        self.en_list  = []
+        self.en_list = []
         self.zh_list = []
 
         '''
         这种做法在遇到空文件的时候可能会出现错误
         '''
 
-        temp="this is a start"
+        temp = "this is a start"
 
-        while temp!="":
+        while temp != "":
 
             self.en_list.append(self.text_en.tell())
 
@@ -240,7 +246,7 @@ class get_translation_from_raw_text_en2zh(Dataset):
 
         temp = "this is a start"
 
-        while temp!="":
+        while temp != "":
 
             self.zh_list.append(self.text_zh.tell())
 
@@ -254,20 +260,16 @@ class get_translation_from_raw_text_en2zh(Dataset):
 
         self.text_en.seek(self.en_list[item])
 
-        return self.text_zh.readline().strip(),self.text_en.readline().strip()
-
-
+        return self.text_zh.readline().strip(), self.text_en.readline().strip()
 
     def __len__(self):
 
-        return min(len(self.en_list),len(self.zh_list))
-
-
+        return min(len(self.en_list), len(self.zh_list))
 
 
 class get_translation_from__jsonlines_en2zh(Dataset):
 
-    def __init__(self,en_zh_text_path:str):
+    def __init__(self, en_zh_text_path: str):
         '''
         :discription: 两边都是一行对应一句话
         :return: batchsize,
@@ -277,56 +279,49 @@ class get_translation_from__jsonlines_en2zh(Dataset):
 
         self.text_en_zh = open(en_zh_text_path)
 
-        self.en_zh_list  = []
-
+        self.en_zh_list = []
 
         '''
         这种做法在遇到空文件的时候可能会出现错误
         '''
 
-        temp="this is a start"
+        temp = "this is a start"
 
-        while temp!="":
+        while temp != "":
 
             self.en_zh_list.append(self.text_en_zh.tell())
 
             temp = self.text_en_zh.readline()
 
-
         print("初始化完毕")
 
     def __getitem__(self, item):
 
-
-
         self.text_en_zh.seek(self.en_zh_list[item])
 
-        source="hello"
-        target="你好"
+        source = "hello"
+        target = "你好"
 
         temp = self.text_en_zh.readline().strip()
 
         try:
             source = json.loads(temp)["english"]
-            target=json.loads(temp)["chinese"]
+            target = json.loads(temp)["chinese"]
 
         except json.decoder.JSONDecodeError:
             print("load error!")
             print(temp)
 
-        return source,target
-
-
+        return source, target
 
     def __len__(self):
 
         return len(self.en_zh_list)
 
 
-
 class get_translation_from__jsonlines_full(Dataset):
 
-    def __init__(self,en_zh_text_path:str):
+    def __init__(self, en_zh_text_path: str):
         '''
         :discription: 两边都是一行对应一句话
         :return: batchsize,
@@ -334,16 +329,16 @@ class get_translation_from__jsonlines_full(Dataset):
 
         print("正在尝试初始化文本数据集")
 
-        self.en_list  = []
+        self.en_list = []
         self.zh_list = []
 
         '''
         这种做法在遇到空文件的时候可能会出现错误
         '''
 
-        with jsonlines.open(en_zh_text_path) as file :
+        with jsonlines.open(en_zh_text_path) as file:
 
-            for i  in file:
+            for i in file:
 
                 self.en_list.append(i["english"])
                 self.zh_list.append(i["chinese"])
@@ -352,18 +347,17 @@ class get_translation_from__jsonlines_full(Dataset):
 
     def __getitem__(self, item):
 
-        return self.en_list[item],self.zh_list[item]
+        return self.en_list[item], self.zh_list[item]
 
     def __len__(self):
 
-        return min(len(self.zh_list),len(self.en_list))
+        return min(len(self.zh_list), len(self.en_list))
 
-import pandas as pd
 
 class read_gsmk8k(Dataset):
     """GSM8K Chinese数据集加载器"""
 
-    def __init__(self, data_dir, sys_prompt,split="train"):
+    def __init__(self, data_dir, sys_prompt, split="train"):
         """
         初始化数据集
 
@@ -377,8 +371,7 @@ class read_gsmk8k(Dataset):
         # 读取parquet文件
         self.data = pd.read_parquet(file_path)
 
-        self.SYSTEM_PROMPT=sys_prompt
-
+        self.SYSTEM_PROMPT = sys_prompt
 
     def __len__(self):
         return len(self.data)
@@ -408,8 +401,6 @@ class read_gsmk8k(Dataset):
             "question": question,
             "answer": answer_only
         }
-
-
 
 
 class read_jsonlines_dpo(Dataset):
@@ -493,7 +484,8 @@ class CocoDataset(Dataset):
         # 如果有转换函数，应用它们
 
         # 调整标签
-        targets = self.resize_annotations(annotations, original_size, self.size)
+        targets = self.resize_annotations(
+            annotations, original_size, self.size)
 
         if self.target_transform is not None:
             targets = self.target_transform(targets)
@@ -523,10 +515,10 @@ class CocoDataset(Dataset):
             x, y, w, h = ann['bbox']
 
             # 调整边界框尺寸
-            x = x /orig_width
-            y = y /orig_height
-            w = w /orig_width
-            h = h /orig_height
+            x = x / orig_width
+            y = y / orig_height
+            w = w / orig_width
+            h = h / orig_height
 
             new_ann = ann.copy()
             new_ann['bbox'] = [x, y, x+w, y+h]

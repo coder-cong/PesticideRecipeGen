@@ -180,3 +180,5 @@ cython_debug/
 
 # 输出结果文件夹
 process_out
+
+logs
