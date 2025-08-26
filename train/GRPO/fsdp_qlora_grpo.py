@@ -1067,8 +1067,9 @@ def generate_responses(device, model, tokenizer, prompt_tokens, num_generations=
     model.eval()  # 设置为评估模式
 
     # 将输入移动到模型所在设备
-    input_ids = prompt_tokens.input_ids.to(device)
-    attention_mask = prompt_tokens.attention_mask.to(device)
+    # input_ids = prompt_tokens.input_ids.to(device)
+    input_ids = prompt_tokens.to(device)
+    # attention_mask = prompt_tokens.attention_mask.to(device)
     prompt_length = input_ids.shape[1]
 
     responses = []
@@ -1078,7 +1079,7 @@ def generate_responses(device, model, tokenizer, prompt_tokens, num_generations=
         for _ in range(num_generations):
             outputs = model.generate(
                 input_ids=input_ids,
-                attention_mask=attention_mask,
+                # attention_mask=attention_mask,
                 max_new_tokens=max_new_tokens,
                 do_sample=True,
                 temperature=temperature,
