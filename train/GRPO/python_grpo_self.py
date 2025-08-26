@@ -319,10 +319,6 @@ def main(args):
             data_loader, desc=f"Epoch {epoch + 1}/{args.num_epochs}")
 
         for batch in progress_bar:
-            # 获取问题和答案
-            prompt = batch['prompt'][0]  # 取第一个元素，因为batch_size=1
-            question = batch['question'][0]
-            expected_answer = batch['answer'][0]
 
             # 格式化提示
             prompt_tokens, formatted_prompt = format_prompt(tokenizer, prompt)

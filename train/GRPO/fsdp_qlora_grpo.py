@@ -59,9 +59,9 @@ from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
 from transformers.utils import SAFE_WEIGHTS_INDEX_NAME, SAFE_WEIGHTS_NAME, hub
 from transformers.models.qwen2.modeling_qwen2 import Qwen2DecoderLayer, Qwen2Attention, Qwen2MLP
 import wandb
-from .profiling_utils import profiling_context
+from profiling_utils import profiling_context
 
-from .dataset import GRPODataset
+from dataset import GRPODataset
 
 # DATASET + DATALOADERS (modified from llama recipes)
 # Formatting prompts in alpaca
@@ -172,6 +172,7 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
 
     dist.init_process_group("nccl", rank=rank, world_size=world_size)
     torch.cuda.set_device(local_rank)
+    device = f"cuda:{local_rank}"
     # CPU卸载设置 将CPU核心平均分配给每个GPU进程
     torch.set_num_threads(
         os.cpu_count()//(min(world_size, torch.cuda.device_count())))
@@ -216,7 +217,12 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
 
     # Set up dataloader
     dataset = GRPODataset(args["data_path"], tokenizer)
-    dataloader = get_dataloader(tokenizer, args)
+    # For distributed training, use DistributedSampler
+    sampler = DistributedSampler(dataset, seed=args["seed"])
+
+    # Use the custom collate function in DataLoader
+    dataloader = DataLoader(
+        dataset, batch_size=args["batch_size"],  sampler=sampler)
     if rank == 0:
         print("tokenizer加载完成")
     # TODO 测试通过添加读取数据集进行训练的代码
@@ -513,9 +519,29 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                         logger.log(
                             {"memory/reserved_before_forward": reserved_before_forward}, rank)
 
+                # 获取问题和答案
+                prompt = batch[0]  # 取第一个元素，因为batch_size=1
+
                 # Forward pass
                 with sync_context:
                     with autocast:
+                        # 1. 生成多个候选答案
+                        responses, prompt_length = generate_responses(
+                            device,
+                            model,
+                            tokenizer,
+                            prompt,
+                            num_generations=args["num_generations"],
+                            max_new_tokens=args["max_completion_length"],
+                            temperature=args["temperature"]
+                        )
+                        if rank == 0:
+                            print(responses)
+                        # 2. 计算奖励得分
+
+                        # 3. 计算policy和ref模型logprobs
+                        # 4. 计算loss
+                        # 5. 反向传播
                         output = model(
                             batch['input_ids'].to(local_rank),
                             labels=batch['labels'].to(local_rank),
@@ -1036,53 +1062,44 @@ def get_dataloader(tokenizer: PreTrainedTokenizerFast, args: Dict):
     return dataloader
 
 
+def generate_responses(device, model, tokenizer, prompt_tokens, num_generations=4, max_new_tokens=100, temperature=1.0):
+    """生成多个候选响应"""
+    model.eval()  # 设置为评估模式
+
+    # 将输入移动到模型所在设备
+    input_ids = prompt_tokens.input_ids.to(device)
+    attention_mask = prompt_tokens.attention_mask.to(device)
+    prompt_length = input_ids.shape[1]
+
+    responses = []
+
+    # 生成多个响应
+    with torch.no_grad():
+        for _ in range(num_generations):
+            outputs = model.generate(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                max_new_tokens=max_new_tokens,
+                do_sample=True,
+                temperature=temperature,
+                top_p=0.9,
+                pad_token_id=tokenizer.pad_token_id if tokenizer.pad_token_id is not None else tokenizer.eos_token_id
+            )
+
+            # 提取生成的文本（不包括提示部分）
+            generated_ids = outputs[0, prompt_length:]
+            generated_text = tokenizer.decode(
+                generated_ids, skip_special_tokens=True)
+            responses.append(generated_text)
+
+    return responses, prompt_length
+
+
 if __name__ == "__main__":
     world_size = 8
-    args = {
-        # 训练设置
-        "master_addr": "127.0.0.1",
-        "master_port": "7890",
-        "batch_size": 1,
-        "gradient_accumulation_steps": 1,
-        "num_epochs": 1,
-        "precision": "bf16",
-        "model_name": "/data/models/trained/qwen2.5-72B-sft",
-        "train_type": "qlora",
-        "verbose": True,
-        "loading_workers": -1,
-        "low_memory": True,
-        "use_cpu_offload": True,
-        "lora_rank": 16,
-        "lora_alpha": 16,
-        "lora_dropout": 0.1,
-        "sharding_strategy": "full_shard",
-        "use_gradient_checkpointing": True,
-        'reentrant_checkpointing': False,
-        "use_activation_cpu_offload": False,
-        "lr": 1e-5,
-        "lr_scheduler": "constant",
-        "wd": 0.1,
-        "optimizer": "adamw",
-        # log
-        "log_to":  "tqdm",  # Where to log output
-        "seed":  42,  # Random seed
-        'project_name':  "fsdp_qlora",  # For wandb logging
-        'name':  None,  # For wandb logging
-        'group':  None,  # For wandb logging
-        'entity':  None,  # For wandb logging
-        # 数据集
-        "data_path": "/root/projs/PesticideRecipeGen/data/distill/distill_data_alpaca.json",
-        "dataset": "alpaca_sample",
-        "dataset_samples": 512,
-        "context_length": 512,
-        "max_steps": -1,
-        "profile": False,
-        'profile_memory': False,
-        'apply_gradient_clipping': False,
-        'grad_norm': 0.3,
-        "output_dir": "output",
-        "no_sync": False,
-    }
+    import json
+    with open("config.json", "r", encoding="utf-8") as f:
+        args = json.load(f)
 
     try:
         # Run

@@ -31,8 +31,4 @@ class GRPODataset(Dataset):
                                                      {"role": "user",
                                                          "content": msg["instruction"]},
                                                      {"role": "assistant", "content": ""}], return_tensors="pt")
-        return prompt[:-2]
-
-
-dataset = load_dataset("parquet", data_dir="./data", split="train")
-print(dataset[0])
+        return prompt.squeeze(0)[:-2]
