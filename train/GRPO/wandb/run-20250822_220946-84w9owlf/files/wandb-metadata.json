@@ -1,0 +1,89 @@
+{
+  "os":  "Linux-5.15.0-94-generic-x86_64-with-glibc2.35",
+  "python":  "CPython 3.10.18",
+  "startedAt":  "2025-08-22T14:09:46.285583Z",
+  "program":  "/root/projs/PesticideRecipeGen/train/GRPO/pesticide_grpo.py",
+  "codePath":  "train/GRPO/pesticide_grpo.py",
+  "codePathLocal":  "pesticide_grpo.py",
+  "git":  {
+    "remote":  "https://github.com/coder-cong/PesticideRecipeGen.git",
+    "commit":  "94c1a8cca2631a058ad29e8d338a56749ee212cd"
+  },
+  "email":  "conglx7012@gmail.com",
+  "root":  "/root/projs/PesticideRecipeGen/train/GRPO",
+  "host":  "lyg0005",
+  "executable":  "/root/miniconda3/envs/pesticide/bin/python3.10",
+  "cpu_count":  72,
+  "cpu_count_logical":  144,
+  "gpu":  "NVIDIA GeForce RTX 3090",
+  "gpu_count":  8,
+  "disk":  {
+    "/":  {
+      "total":  "468191526912",
+      "used":  "441661308928"
+    }
+  },
+  "memory":  {
+    "total":  "540638859264"
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA GeForce RTX 3090",
+      "memoryTotal":  "25769803776",
+      "cudaCores":  10496,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-68bb64fd-26bc-bb36-6414-46108d92b141"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 3090",
+      "memoryTotal":  "25769803776",
+      "cudaCores":  10496,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-9f28af76-db54-a2f8-a164-3837ad2d69ca"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 3090",
+      "memoryTotal":  "25769803776",
+      "cudaCores":  10496,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-baf740f7-9999-e78a-e6fd-3e37ccc7a9f9"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 3090",
+      "memoryTotal":  "25769803776",
+      "cudaCores":  10496,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-8f8c1574-30f4-88ee-5002-aaebc138cdfa"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 3090",
+      "memoryTotal":  "25769803776",
+      "cudaCores":  10496,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-12ff5623-b6c7-b0a4-df7a-ce516592637e"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 3090",
+      "memoryTotal":  "25769803776",
+      "cudaCores":  10496,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-13dff6c9-74bc-b4bb-e114-3f617d1ee962"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 3090",
+      "memoryTotal":  "25769803776",
+      "cudaCores":  10496,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-01765a13-d476-65a7-5b9b-f7dcd4542eef"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 3090",
+      "memoryTotal":  "25769803776",
+      "cudaCores":  10496,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-3311882b-7f0a-3c8d-f94e-4365e16afc22"
+    }
+  ],
+  "cudaVersion":  "12.4",
+  "writerId":  "bc2dpda0icqpkiu50lajusaiu40fj3j3"
+}

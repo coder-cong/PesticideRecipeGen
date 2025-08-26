@@ -1,3 +1,4 @@
+from datasets import load_dataset
 from torch.utils.data.dataset import Dataset
 import json
 
@@ -31,3 +32,7 @@ class GRPODataset(Dataset):
                                                          "content": msg["instruction"]},
                                                      {"role": "assistant", "content": ""}], return_tensors="pt")
         return prompt[:-2]
+
+
+dataset = load_dataset("parquet", data_dir="./data", split="train")
+print(dataset[0])
