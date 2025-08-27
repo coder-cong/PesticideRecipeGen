@@ -30,5 +30,8 @@ class GRPODataset(Dataset):
         prompt = self.tokenizer.apply_chat_template([{"role": "system", "content": SYSTEM_PROMPT},
                                                      {"role": "user",
                                                          "content": msg["instruction"]},
-                                                     {"role": "assistant", "content": ""}], )
+                                                     ],
+                                                    tokenize=False,  # <--- 关键修改：设置为 False 以返回字符串而不是 token ID
+                                                    add_generation_prompt=True  # <--- 推荐添加：在模板末尾添加用于生成助手的特殊 token
+                                                    )
         return prompt

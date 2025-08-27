@@ -527,15 +527,23 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                 with sync_context:
                     with autocast:
                         # 1. 生成多个候选答案
-                        responses, prompt_length = generate_responses(
+                        responses, prompt_lens = generate_batch_fsdp(
                             rank,
                             model,
                             tokenizer,
-                            prompt,
-                            num_generations=args["num_generations"],
+                            [prompt]*args["num_generations"],
                             max_new_tokens=args["max_completion_length"],
                             temperature=args["temperature"]
                         )
+                        # responses, prompt_length = generate_responses(
+                        #     rank,
+                        #     model,
+                        #     tokenizer,
+                        #     prompt,
+                        #     num_generations=args["num_generations"],
+                        #     max_new_tokens=args["max_completion_length"],
+                        #     temperature=args["temperature"]
+                        # )
                         if rank == 0:
                             print(responses)
                         # 2. 计算奖励得分
@@ -1131,6 +1139,7 @@ def _sample_top_p(probs, p):
 
 
 def generate_batch_fsdp(
+    local_rank,
     model,
     tokenizer,
     prompt: str,
@@ -1152,7 +1161,7 @@ def generate_batch_fsdp(
     """
     model.eval()
     # FSDP 模型已经分布在各个 GPU 上，我们只需要获取当前 rank 的 device
-    device = model.device
+    device = f"cuda:{local_rank}"
     # 1. 设置 Tokenizer 并进行批处理编码
     # **关键**: 对于自回归生成，必须使用左填充！
     tokenizer.padding_side = 'left'
@@ -1237,7 +1246,7 @@ def generate_batch_fsdp(
     generated_texts = tokenizer.batch_decode(
         output_ids, skip_special_tokens=True)
 
-    return generated_texts, response_lengths.cpu()
+    return generated_texts, response_lengths.cpu().tolist()
 
 
 if __name__ == "__main__":
