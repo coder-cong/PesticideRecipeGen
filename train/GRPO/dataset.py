@@ -30,5 +30,5 @@ class GRPODataset(Dataset):
         prompt = self.tokenizer.apply_chat_template([{"role": "system", "content": SYSTEM_PROMPT},
                                                      {"role": "user",
                                                          "content": msg["instruction"]},
-                                                     {"role": "assistant", "content": ""}], return_tensors="pt")
-        return prompt.squeeze(0)[:-2]
+                                                     {"role": "assistant", "content": ""}], )
+        return prompt
