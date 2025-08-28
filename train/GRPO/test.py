@@ -42,6 +42,7 @@ def _sample_top_p(probs, p):
     # 我们也保留第一个 token，以防 p 太小
     mask = probs_sum - probs_sort > p
     probs_sort[mask] = 0.0
+    print(probs_sort)
 
     # 3. 重新归一化概率
     probs_sort.div_(probs_sort.sum(dim=-1, keepdim=True))
@@ -164,7 +165,7 @@ def generate_batch_fsdp(
     return all_generated_texts, all_response_lengths
 
 
-if __name__ == "__main__":
+def generate_test():
 
     from transformers import AutoModelForCausalLM, AutoTokenizer
     device = "cuda:0"
@@ -179,3 +180,31 @@ if __name__ == "__main__":
         model, tokenizer, prompts, 1024, 1.0, 0.7)
     print(
         [f"len:{lens[i]},response:{responses[i]}" for i in range(len(responses))])
+
+
+def sample_test():
+    probs = torch.Tensor([0.2, 0.3, 0.1, 0.2, 0.1, 0.1]).unsqueeze(0)
+    print(probs.shape)
+    next_token = _sample_top_p(probs, 0.6)
+    print(next_token)
+
+
+def reward_test():
+    from fsdp_qlora_grpo import compute_rewards
+    with open("/root/projs/PesticideRecipeGen/data/distill/distill_data_alpaca.json", "r", encoding="utf-8") as f:
+        import json
+        data = json.load(f)
+    rewards = compute_rewards(data[0]["instruction"], [data[0]["output"]])
+    print(rewards)
+
+
+def compute_logprobs_test():
+    tokenizer = AutoTokenizer.from_pretrained("/data/models/qwen2.5-0.5B")
+    tokens = tokenizer.encode("nihao", return_tensors="pt")
+    print([tokenizer.decode(token) for token in tokens[0]])
+
+
+if __name__ == "__main__":
+    # sample_test()
+    # reward_test()
+    compute_logprobs_test()

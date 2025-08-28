@@ -6,10 +6,13 @@ import os
 import sys
 import time
 import types
+import json
 from contextlib import nullcontext
 from glob import glob
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
+import requests
+import re
 
 import bitsandbytes as bnb
 import safetensors
@@ -17,6 +20,7 @@ import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
 import torch.optim as optim
+import torch.nn.functional as F
 from accelerate import init_empty_weights
 from accelerate.utils import set_seed
 
@@ -62,6 +66,7 @@ import wandb
 from profiling_utils import profiling_context
 
 from dataset import GRPODataset
+from util import SYSTEM_PROMPT, USER_CONTENT, request_dmx_api, request_hanka_api
 
 # DATASET + DATALOADERS (modified from llama recipes)
 # Formatting prompts in alpaca
@@ -496,11 +501,12 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
             update_progress_bar(progress_bar, epoch, log_loss, log_lr, rank)
             model.train()
             ddp_loss = torch.zeros(2).to(local_rank)
-
+            # 这里因为有可能有的batch会跳过，另外使用一个变量来计数有效的batch数
+            effective_batch_idx = 0
             for batch_idx, batch in enumerate(dataloader):
 
                 accumulate_grads = (
-                    batch_idx+1) % gradient_accumulation_steps == 0
+                    effective_batch_idx+1) % gradient_accumulation_steps == 0
 
                 # Prevent gradient syncing until update step if using no_sync option.
                 # Documentation states this should only be used on the root FSDP instance
@@ -540,23 +546,54 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                             prompt,
                             num_generations=args["num_generations"],
                             max_new_tokens=args["max_completion_length"],
-                            temperature=args["temperature"]
+                            temperature=args["temperature"],
+                            num_parallel=args["num_generations"]//2
                         )
 
-                        if rank == 0:
-                            print(responses)
                         # 2. 计算奖励得分
-
+                        rewards = compute_rewards(prompt, responses)
+                        if rewards is None or sum(rewards) == 0:
+                            continue
                         # 3. 计算policy和ref模型logprobs
+                        # 计算策略模型的对数概率
+                        policy_logprobs = []
+                        for response in responses:
+                            policy_logprob = compute_log_probs(
+                                model,
+                                False,
+                                tokenizer,
+                                prompt,
+                                response,
+                                device
+                            )
+                            policy_logprobs.append(policy_logprob)
+
+                        # 计算参考模型的对数概率
+                        reference_logprobs = []
+                        with torch.no_grad():
+                            for response in responses:
+                                reference_logprob = compute_log_probs(
+                                    model,
+                                    True,
+                                    tokenizer,
+                                    prompt,
+                                    response,
+                                    device
+                                )
+                                reference_logprobs.append(reference_logprob)
+
+                        # 转换为张量
+                        policy_logprobs = torch.cat(policy_logprobs)
+                        reference_logprobs = torch.cat(reference_logprobs)
+                        rewards_tensor = torch.tensor(rewards, device=device)
                         # 4. 计算loss
-                        # 5. 反向传播
-                        output = model(
-                            batch['input_ids'].to(local_rank),
-                            labels=batch['labels'].to(local_rank),
-                            attention_mask=None,
+                        loss = compute_grpo_loss(
+                            policy_logprobs,
+                            reference_logprobs,
+                            rewards_tensor,
+                            beta=args.beta
                         )
-                        print(output)
-                        loss = output.loss
+                        effective_batch_idx += 1
 
                     # Scale loss for gradient accumulation
                     loss = loss / gradient_accumulation_steps
@@ -1137,115 +1174,340 @@ def _sample_top_p(probs, p):
     next_token = torch.gather(probs_idx, -1, next_token)
     return next_token
 
-# 辅助函数：生成单个响应
 
-
-def _generate_single_response(
+def _generate_parallel_responses(
     local_rank: int,
     model,
     tokenizer,
     prompt: str,  # 单个字符串
+    num_current_batch_generations: int,  # 当前批次需要生成的数量 (例如 num_parallel)
     max_new_tokens: int,
     temperature: float = 1.0,
     top_p: float = 0.9,
-) -> Tuple[str, int]:  # 返回单个字符串和长度
+) -> Tuple[List[str], List[int]]:
     """
-    为单个提示生成一个响应，不使用 KV Cache。
+    为单个提示生成 num_current_batch_generations 次响应，每次作为一个批次推理。
     """
     model.eval()
     device = f"cuda:{local_rank}"
     tokenizer.padding_side = 'left'
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    # 编码单个提示，batch_size 将为 1
+
+    # 将单个提示复制 num_current_batch_generations 次
+    prompts_list = [prompt] * num_current_batch_generations
+
+    # 编码批处理的提示
     inputs = tokenizer(
-        [prompt],  # 注意这里用列表包裹，因为 tokenizer 期望一个列表
+        prompts_list,
         return_tensors="pt",
-        padding=True,  # 实际上对于 batch_size=1 没什么影响
+        padding=True,
         truncation=True,
     ).to(device)
+
     input_ids = inputs["input_ids"]
     attention_mask = inputs["attention_mask"]
-    batch_size, prompt_length = input_ids.shape  # batch_size 此时为 1
+
+    batch_size, prompt_length = input_ids.shape
+
     generated_tokens = input_ids
     unfinished_sequences = torch.ones(
         batch_size, dtype=torch.long, device=device)
+
+    # 存储每个响应的生成长度
     response_length = torch.zeros(
-        batch_size, dtype=torch.long, device=device)  # 这里是单个响应的长度
+        batch_size, dtype=torch.long, device=device)
+
     with torch.no_grad():
         for _ in range(max_new_tokens):
-            input_ids_step = generated_tokens
-
+            # 当使用`use_cache=False`时，每次迭代都需要传入完整的`generated_tokens`
+            # 如果使用KV Cache，这里只需要传入`next_token`并更新`past_key_values`
             outputs = model(
-                input_ids=input_ids_step,
+                input_ids=generated_tokens,  # 注意这里传入的是所有已生成的token
                 attention_mask=attention_mask,
-                use_cache=False
+                use_cache=False  # 根据原先_generate_single_response的设定，这里也禁用KV Cache
             )
-
+            # 获取最后一个 token 的 logits，形状为 [batch_size, vocab_size]
             next_token_logits = outputs.logits[:, -1, :]
+
             if temperature > 0 and temperature != 1.0:
                 next_token_logits = next_token_logits / temperature
+
             probs = torch.nn.functional.softmax(next_token_logits, dim=-1)
             next_token = _sample_top_p(probs, p=top_p)
-
-            # 【此处移除打印，因为在循环里每次都打印会很吵，如果需要可以在主函数里打印】
-            if local_rank == 0:
-                print(next_token)
+            # 对于已经完成的序列（`unfinished_sequences`为0），将生成的 token 替换为 pad_token_id
+            # 这样这些序列就不会继续生成有意义的 token
             next_token = next_token * unfinished_sequences.unsqueeze(
                 1) + tokenizer.pad_token_id * (1 - unfinished_sequences.unsqueeze(1))
+
+            # 将新生成的 token 添加到已生成的序列中
             generated_tokens = torch.cat(
                 [generated_tokens, next_token], dim=-1)
+
+            # 更新 attention_mask：对于尚未完成的序列，其 attention_mask 增加一个 1
             attention_mask = torch.cat(
                 [attention_mask, unfinished_sequences.unsqueeze(1)],
                 dim=1
             )
+            # 更新响应长度，只计算尚未完成的序列
+            response_length += unfinished_sequences
 
-            response_length += unfinished_sequences  # 更新单个响应的长度
+            # 检查哪些序列已完成 (生成 EOS token)
             unfinished_sequences = unfinished_sequences & (
                 next_token.squeeze(1) != tokenizer.eos_token_id)
+
+            # 如果所有序列都已完成，则提前退出循环
             if not torch.any(unfinished_sequences):
                 break
-
+    # 提取生成的补全部分（排除原始提示）
     output_ids = generated_tokens[:, prompt_length:]
-    generated_text = tokenizer.decode(
-        output_ids[0], skip_special_tokens=True)  # 解码单个响应
 
-    return generated_text, response_length.item()  # 返回单个文本和其长度（item()用于从张量取值）
+    all_generated_texts: List[str] = []
+    all_response_lengths: List[int] = []
+
+    # 遍历批次中的每个生成结果进行解码
+    for i in range(batch_size):
+        generated_text = tokenizer.decode(
+            output_ids[i], skip_special_tokens=True)
+        all_generated_texts.append(generated_text)
+        all_response_lengths.append(response_length[i].item())
+
+    return all_generated_texts, all_response_lengths
 
 
 def generate_batch_fsdp(
     local_rank: int,
     model,
     tokenizer,
-    prompt: str,  # 修改为单个字符串
-    num_generations: int,  # 新增参数
+    prompt: str,  # 单个字符串
+    num_generations: int,  # 需要生成的总补全数量
     max_new_tokens: int,
     temperature: float = 1.0,
     top_p: float = 0.9,
+    num_parallel: int = 1,  # 控制并行生成提示的数量 (一个批次中包含多少个重复的提示)
 ) -> Tuple[List[str], List[int]]:
     """
-    为单个提示生成 num_generations 次响应，每次单独推理，以节省显存。
+    为单个提示生成 num_generations 次响应，每次使用 num_parallel 个并行批次。
+
+    Args:
+        local_rank: 当前进程的局部排名（用于CUDA设备分配）。
+        model: 模型实例。
+        tokenizer: 分词器实例。
+        prompt: 单个字符串提示。
+        num_generations: 需要为该提示生成的总补全数量。
+        max_new_tokens: 每个补全的最大新 token 数量。
+        temperature: 采样温度。
+        top_p: Top-P 采样阈值。
+        num_parallel: 在一个批次中并行处理的重复提示数量。
+                      例如，如果 num_generations=8, num_parallel=2，
+                      则会进行 4 次模型调用，每次传入 2 个相同的提示。
+    Returns:
+        一个包含所有生成的文本列表和对应长度列表的元组。
     """
     all_generated_texts: List[str] = []
     all_response_lengths: List[int] = []
-    for i in range(num_generations):
+
+    # 计算需要进行多少个并行批次处理
+    num_batches_needed = (num_generations + num_parallel - 1) // num_parallel
+
+    for i in range(num_batches_needed):
+        # 计算当前批次需要生成的实际数量
+        # 最后一个批次可能少于 num_parallel
+        num_current_batch_generations = min(
+            num_parallel, num_generations - len(all_generated_texts))
+
+        if num_current_batch_generations <= 0:
+            break  # 已经生成了足够的数量，退出
         if local_rank == 0:
             print(
-                f"Generating response {i+1}/{num_generations} for prompt: '{prompt[:50]}...'")
-
-        # 调用辅助函数生成单个响应
-        generated_text, response_length = _generate_single_response(
+                f"Generating batch {i+1}/{num_batches_needed} "
+                f"({num_current_batch_generations} parallel responses) "
+                f"for prompt: '{prompt[:50]}...'"
+            )
+        # 调用新的辅助函数生成一个批次的响应
+        generated_texts_batch, response_lengths_batch = _generate_parallel_responses(
             local_rank=local_rank,
             model=model,
             tokenizer=tokenizer,
             prompt=prompt,
+            num_current_batch_generations=num_current_batch_generations,
             max_new_tokens=max_new_tokens,
             temperature=temperature,
             top_p=top_p,
         )
-        all_generated_texts.append(generated_text)
-        all_response_lengths.append(response_length)
+        all_generated_texts.extend(generated_texts_batch)
+        all_response_lengths.extend(response_lengths_batch)
+
     return all_generated_texts, all_response_lengths
+
+
+def compute_rewards(
+    prompt: str,
+    responses: List[str],
+    max_retries: int = 10,  # 新增参数: 最大重试次数
+    retry_delay_seconds: int = 2  # 新增参数: 重试间隔时间
+) -> Optional[List[float]]:  # 返回类型改为 Optional[List[float]]
+    """
+    计算给定提示和每个响应的奖励得分。
+    通过调用大模型API，将提示和响应拼接成完整输入，由大模型进行打分。
+    如果API调用失败，会进行重试。如果超过最大重试次数仍失败，则返回None。
+    Args:
+        prompt: 原始的提示字符串。
+        responses: 大模型为该提示生成的补全响应列表。
+        max_retries: 每个API请求的最大重试次数。
+        retry_delay_seconds: 每次重试前的等待时间（秒）。
+    Returns:
+        一个浮点数列表，表示每个响应的奖励得分。
+        如果任何一个响应的打分在重试后仍失败，则整个函数返回 None。
+    """
+    rewards: List[float] = []
+
+    # 循环处理每个响应
+    for i, response_text in enumerate(responses):
+        current_reward = None  # 用于存储当前响应的奖励
+        # 0到max_retries，所以总共max_retries+1次尝试
+        for attempt in range(max_retries + 1):
+            try:
+                system_msg = SYSTEM_PROMPT
+                user_msg = USER_CONTENT.format(
+                    prompt=prompt, response_text=response_text)
+                response_data = request_hanka_api(system_msg, user_msg)
+                # --- 解析API响应以提取奖励 ---
+                model_output = response_data
+                print(model_output)
+                if model_output is not None and model_output != "":
+                    match = re.search(r'总分:\s*(\d+)', model_output)
+                    if match:
+                        score = float(match.group(1))
+                        score = max(0.0, min(10.0, score))
+                        current_reward = score
+                        print(
+                            f"  Response {i+1} Score (Attempt {attempt+1}/{max_retries+1}): {score} - {model_output}")
+                        break  # 成功获取奖励，跳出重试循环
+                    else:
+                        print(
+                            f"  Warning: Could not extract score from API response for Response {i+1} (Attempt {attempt+1}/{max_retries+1}): {model_output}")
+                else:
+                    print(
+                        f"  Warning: No valid choices in API response for Response {i+1} (Attempt {attempt+1}/{max_retries+1}): {response_data}")
+            except requests.exceptions.Timeout:
+                print(
+                    f"  API Request Timeout for Response {i+1} (Attempt {attempt+1}/{max_retries+1}). Retrying...")
+            except requests.exceptions.RequestException as e:
+                print(
+                    f"  Error calling API for Response {i+1} (Attempt {attempt+1}/{max_retries+1}): {e}. Retrying...")
+            except json.JSONDecodeError as e:
+                print(
+                    f"  Error decoding JSON from API for Response {i+1} (Attempt {attempt+1}/{max_retries+1}): {e}. Retrying...")
+            except Exception as e:
+                print(
+                    f"  An unexpected error occurred for Response {i+1} (Attempt {attempt+1}/{max_retries+1}): {e}. Retrying...")
+
+            # 如果不是最后一次尝试，则等待后重试
+            if attempt < max_retries:
+                time.sleep(retry_delay_seconds)
+            else:
+                print(
+                    f"  Max retries ({max_retries}) exceeded for Response {i+1}. Skipping this response.")
+                current_reward = None  # 达到最大重试次数仍失败，设置为None
+
+        # 将当前响应的奖励添加到列表中
+        # 如果任何一个响应打分失败 (current_reward 为 None)，则整个函数应该返回 None
+        if current_reward is None:
+            print(
+                f"  Failed to get reward for Response {i+1} after all retries. Returning None for the entire batch.")
+            return None  # 任何一个失败，则整个批次失败
+        else:
+            rewards.append(current_reward)
+    return rewards
+
+
+def compute_log_probs(model, is_ref, tokenizer, prompt: str, response: str, device):
+    """计算模型对响应的对数概率"""
+    # 编码响应
+    response_tokens = tokenizer(
+        response, return_tensors="pt").input_ids.to(device)
+    prompt_tokens = tokenizer(
+        prompt, return_tensors="pt").input_ids.to(device)
+    prompt_length = prompt_tokens.shape[1]
+
+    # 构建完整输入序列 (提示+响应)
+    full_input_ids = torch.cat(
+        [prompt_tokens, response_tokens], dim=1).to(device)
+    full_attention_mask = torch.ones_like(full_input_ids).to(device)
+
+    # 计算模型输出
+    if is_ref:
+        outputs = reference_model_infer(
+            model, full_input_ids, full_attention_mask)
+    else:
+        outputs = model(input_ids=full_input_ids,
+                        attention_mask=full_attention_mask)
+
+    logits = outputs.logits[:, prompt_length - 1:-1, :]
+
+    # 计算对数概率
+    log_probs = F.log_softmax(logits, dim=-1)
+
+    # 获取目标token的对数概率
+    target_ids = full_input_ids[:, prompt_length:]
+    token_log_probs = torch.gather(
+        log_probs, 2, target_ids.unsqueeze(-1)
+    ).squeeze(-1)
+
+    # 计算序列平均对数概率
+    seq_log_prob = token_log_probs.sum(dim=1) / target_ids.shape[1]
+
+    return seq_log_prob
+
+
+def reference_model_infer(policy_model, full_input_ids, full_attention_mask):
+    with policy_model.disable_adapter():
+        outputs = policy_model(input_ids=full_input_ids,
+                               attention_mask=full_attention_mask)
+    return outputs
+
+
+def compute_grpo_loss(policy_logprobs, reference_logprobs, rewards, beta=0.1):
+    """
+    计算GRPO损失 - 基于DeepSeek论文的方法
+
+    参数:
+        policy_logprobs: 形状为[n]的张量，策略模型对n个生成答案的对数概率
+        reference_logprobs: 形状为[n]的张量，参考模型对相同n个答案的对数概率
+        rewards: 形状为[n]的张量，每个答案的奖励值
+        beta: KL散度的权重系数
+
+    返回:
+        GRPO损失
+    """
+    # 转换为张量(如果不是)
+    if not isinstance(rewards, torch.Tensor):
+        rewards = torch.tensor(rewards, device=policy_logprobs.device)
+
+    # 1. 计算奖励的标准化优势值
+    advantages = (rewards - rewards.mean()) / \
+        (rewards.std() + 1e-8)  # 添加小值避免除零
+
+    # 2. 计算策略和参考模型之间的KL散度 (对数概率之差)
+    '''
+    关键这个地方实际上参考网络的梯度是不参与计算的，应该减掉
+    '''
+    kl_divergence = policy_logprobs - reference_logprobs
+
+    # 3. 计算GRPO损失：-E[(log P_policy - log P_ref) * advantage]
+    '''
+        这个地方实际上的意义是 log(policy)*adavantages
+    '''
+    policy_loss = -(kl_divergence * advantages).mean()
+
+    # 4. 添加KL正则化项以限制整体偏离
+    kl_reg = beta * kl_divergence.mean()
+
+    # 5. 最终GRPO损失
+    loss = policy_loss + kl_reg
+
+    return loss
 
 
 if __name__ == "__main__":
