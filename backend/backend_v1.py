@@ -61,6 +61,45 @@ class ChatCompletionRequest(BaseModel):
     temperature: Optional[float] = 0.6
 
 
+class PromptSelector:
+    def __init__(self):
+        # 预定义不同场景的prompt模板
+        self.prompt_templates = {
+            "WDG": "str1",  # 水分散粒剂的prompt
+            "SC": "str2",   # 悬浮剂的prompt
+            "EC": "str3",   # 乳油的prompt
+            "EW": "str4",   # 水乳剂的prompt
+            "ME": "str5",   # 微乳剂的prompt
+            "WP": "str6",   # 可湿性粉剂的prompt
+            "general": """通用prompt"""
+        }
+
+        # 定义关键词匹配规则
+        self.formulation_types = ["WDG", "SC", "EC", "EW", "ME", "WP"]
+
+    def select_prompt(self, user_input: str) -> str:
+        """
+        根据用户输入选择合适的prompt模板
+        """
+        # 将用户输入转换为大写以进行匹配
+        upper_input = user_input.upper()
+
+        # 找出所有匹配的类型
+        matched_types = [
+            ftype for ftype in self.formulation_types
+            if ftype in upper_input
+        ]
+
+        # 如果只匹配到一种类型，返回对应的prompt
+        if len(matched_types) == 1:
+            return self.prompt_templates[matched_types[0]]
+
+        # 如果没有匹配到或匹配到多种类型，返回通用prompt
+        return self.prompt_templates["general"]
+
+
+
+
 def load_model():
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
@@ -190,32 +229,38 @@ def extract_steps(text: str) -> List[str]:
     return steps
 
 
+# 在 create_chat_completion 函数中的使用方式保持
 @app.post("/v1/chat/completions")
 async def create_chat_completion(request: ChatCompletionRequest):
+    # 创建 PromptSelector 实例
+    prompt_selector = PromptSelector()
 
-    with open("prompt.txt", "r", encoding="utf-8") as file:
-        content = file.read()
-    message_data = {"role": "system", "content": content}
+    # 获取用户最后一条消息
+    user_message = next((msg for msg in reversed(
+        request.messages) if msg.role == "user"), None)
 
-    system_promote = Message.model_validate(message_data)
+    if user_message:
+        # 选择合适的 prompt
+        selected_prompt = prompt_selector.select_prompt(user_message.content)
 
-    request.messages.insert(0, system_promote)
+        # 创建系统提示消息
+        system_message = Message(role="system", content=selected_prompt)
+
+        # 将系统提示插入到消息列表开头
+        request.messages.insert(0, system_message)
 
     print(request)
-
     request.temperature = 0.6
 
     if request.model == 'qwen':
-        # 使用您自己的模型
         prompt = "".join(
             [f"{msg.role}: {msg.content}\n" for msg in request.messages])
         prompt += "assistant:"
         return StreamingResponse(qwen_generate_response(prompt, 2048, request.temperature), media_type="text/event-stream")
-
     else:
-        # 将请求代理给OpenAI的API
         request.model = "deepseek-v3-250324"
         return StreamingResponse(proxy_openai(request), media_type="text/event-stream")
+
 
 
 @app.post('/export')
