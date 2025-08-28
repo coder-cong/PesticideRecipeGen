@@ -11,7 +11,7 @@
     "loading_workers": -1,
     "low_memory": true,
     "use_cpu_offload": true,
-    "lora_rank": 16,
+    "lora_rank": 8,
     "lora_alpha": 16,
     "lora_dropout": 0.1,
     "sharding_strategy": "full_shard",

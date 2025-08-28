@@ -1,6 +1,6 @@
 import os
 import argparse
-from typing import List
+from typing import List, Tuple
 import torch as torch
 import torch.distributed as dist
 from torch.utils.data import DataLoader
@@ -53,122 +53,125 @@ def _sample_top_p(probs, p):
     next_token = torch.gather(probs_idx, -1, next_token)
     return next_token
 
+# 辅助函数：生成单个响应
 
-def generate_batch_fsdp(
+
+def _generate_single_response(
+    local_rank: int,
     model,
     tokenizer,
-    prompts: List[str],
+    prompt: str,  # 单个字符串
     max_new_tokens: int,
     temperature: float = 1.0,
     top_p: float = 0.9,
-) -> List[str]:
+) -> Tuple[str, int]:  # 返回单个字符串和长度
     """
-    使用手动前向传播循环为一批提示并行生成响应，兼容 FSDP 模型。
-    Args:
-        model: FSDP 包裹的 Transformer 模型。
-        tokenizer: 对应的分词器。
-        prompts: 一个字符串列表，每个字符串是一个独立的提示。
-        max_new_tokens: 每个响应生成的最大新 token 数量。
-        temperature: 控制生成随机性的温度。值越小，生成越确定。
-        top_p: Top-p (nucleus) 采样的累积概率阈值。
-    Returns:
-        一个字符串列表，包含每个提示对应的生成响应。
+    为单个提示生成一个响应，不使用 KV Cache。
     """
     model.eval()
-    # FSDP 模型已经分布在各个 GPU 上，我们只需要获取当前 rank 的 device
-    device = model.device
-    # 1. 设置 Tokenizer 并进行批处理编码
-    # **关键**: 对于自回归生成，必须使用左填充！
+    device = f"cuda:{local_rank}"
     tokenizer.padding_side = 'left'
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-
+    # 编码单个提示，batch_size 将为 1
     inputs = tokenizer(
-        prompts,
+        [prompt],  # 注意这里用列表包裹，因为 tokenizer 期望一个列表
         return_tensors="pt",
-        padding=True,
+        padding=True,  # 实际上对于 batch_size=1 没什么影响
         truncation=True,
     ).to(device)
     input_ids = inputs["input_ids"]
     attention_mask = inputs["attention_mask"]
-    batch_size, prompt_length = input_ids.shape
-    # 2. 初始化生成状态
+    batch_size, prompt_length = input_ids.shape  # batch_size 此时为 1
     generated_tokens = input_ids
-    past_key_values = None
-
-    # 跟踪哪些序列还没有生成结束符
     unfinished_sequences = torch.ones(
         batch_size, dtype=torch.long, device=device)
-    # 【修改】初始化一个张量来存储每个响应的长度
-    response_lengths = torch.zeros(batch_size, dtype=torch.long, device=device)
-
+    response_length = torch.zeros(
+        batch_size, dtype=torch.long, device=device)  # 这里是单个响应的长度
     with torch.no_grad():
         for _ in range(max_new_tokens):
-            # 3. 准备模型输入
-            # 如果有 KV 缓存，我们只需要输入最后一个 token
-            if past_key_values is not None:
-                input_ids_step = generated_tokens[:, -1:]
-            else:
-                input_ids_step = generated_tokens
+            input_ids_step = generated_tokens
+
             outputs = model(
                 input_ids=input_ids_step,
                 attention_mask=attention_mask,
-                past_key_values=past_key_values,
-                use_cache=True
+                use_cache=False
             )
 
-            # 4. 从 logits 中采样下一个 token
             next_token_logits = outputs.logits[:, -1, :]
-
-            # 应用 temperature
             if temperature > 0 and temperature != 1.0:
                 next_token_logits = next_token_logits / temperature
-
-            # 计算概率并应用 top-p 采样
             probs = torch.nn.functional.softmax(next_token_logits, dim=-1)
             next_token = _sample_top_p(probs, p=top_p)
-            # 5. 处理已经完成的序列
-            # 如果一个序列已经完成，我们用 pad_token 填充，而不是新采样的 token
+
+            # 【此处移除打印，因为在循环里每次都打印会很吵，如果需要可以在主函数里打印】
+            if local_rank == 0:
+                print(next_token)
             next_token = next_token * unfinished_sequences.unsqueeze(
                 1) + tokenizer.pad_token_id * (1 - unfinished_sequences.unsqueeze(1))
-
-            # 6. 更新状态以进行下一次迭代
             generated_tokens = torch.cat(
                 [generated_tokens, next_token], dim=-1)
-
-            # 更新 attention mask (只为未完成的序列添加 1)
             attention_mask = torch.cat(
                 [attention_mask, unfinished_sequences.unsqueeze(1)],
                 dim=1
             )
 
-            past_key_values = outputs.past_key_values
-            # 【修改】在更新 unfinished_sequences 之前，累加长度
-            # 只有仍在生成的序列 (unfinished_sequences值为1) 的长度会增加
-            response_lengths += unfinished_sequences
-
-            # 7. 检查哪些序列刚刚生成了结束符
+            response_length += unfinished_sequences  # 更新单个响应的长度
             unfinished_sequences = unfinished_sequences & (
                 next_token.squeeze(1) != tokenizer.eos_token_id)
-
-            # 如果所有序列都已完成，提前退出
             if not torch.any(unfinished_sequences):
                 break
-    # 8. 解码并返回结果
-    # 移除输入提示部分
-    output_ids = generated_tokens[:, prompt_length:]
-    generated_texts = tokenizer.batch_decode(
-        output_ids, skip_special_tokens=True)
 
-    return generated_texts, (response_lengths-1).cpu().tolist()
+    output_ids = generated_tokens[:, prompt_length:]
+    generated_text = tokenizer.decode(
+        output_ids[0], skip_special_tokens=True)  # 解码单个响应
+
+    return generated_text, response_length.item()  # 返回单个文本和其长度（item()用于从张量取值）
+
+
+def generate_batch_fsdp(
+    local_rank: int,
+    model,
+    tokenizer,
+    prompt: str,  # 修改为单个字符串
+    num_generations: int,  # 新增参数
+    max_new_tokens: int,
+    temperature: float = 1.0,
+    top_p: float = 0.9,
+) -> Tuple[List[str], List[int]]:
+    """
+    为单个提示生成 num_generations 次响应，每次单独推理，以节省显存。
+    """
+    all_generated_texts: List[str] = []
+    all_response_lengths: List[int] = []
+    for i in range(num_generations):
+        if local_rank == 0:
+            print(
+                f"Generating response {i+1}/{num_generations} for prompt: '{prompt[:50]}...'")
+
+        # 调用辅助函数生成单个响应
+        generated_text, response_length = _generate_single_response(
+            local_rank=local_rank,
+            model=model,
+            tokenizer=tokenizer,
+            prompt=prompt,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            top_p=top_p,
+        )
+        all_generated_texts.append(generated_text)
+        all_response_lengths.append(response_length)
+    return all_generated_texts, all_response_lengths
 
 
 if __name__ == "__main__":
+
     from transformers import AutoModelForCausalLM, AutoTokenizer
     device = "cuda:0"
     model = AutoModelForCausalLM.from_pretrained("/data/models/qwen2.5-0.5B")
     model.to(device)
     tokenizer = AutoTokenizer.from_pretrained("/data/models/qwen2.5-0.5B")
+
     dataset = GRPODataset(
         "/root/projs/PesticideRecipeGen/data/distill/distill_data_alpaca.json", tokenizer)
     prompts = [dataset[0]]*5
