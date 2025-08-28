@@ -215,16 +215,16 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
     tokenizer = AutoTokenizer.from_pretrained(args["model_name"])
     tokenizer.pad_token_id = tokenizer.eos_token_id  # TODO check if it exists first
 
-    # # Set up dataloader
-    # dataset = GRPODataset(args["data_path"], tokenizer)
-    # # For distributed training, use DistributedSampler
-    # sampler = DistributedSampler(dataset, seed=args["seed"])
-
-    # # Use the custom collate function in DataLoader
-    # dataloader = DataLoader(
-    #     dataset, batch_size=args["batch_size"],  sampler=sampler)
     # Set up dataloader
-    dataloader = get_dataloader(tokenizer, args)
+    dataset = GRPODataset(args["data_path"], tokenizer)
+    # For distributed training, use DistributedSampler
+    sampler = DistributedSampler(dataset, seed=args["seed"])
+
+    # Use the custom collate function in DataLoader
+    dataloader = DataLoader(
+        dataset, batch_size=args["batch_size"],  sampler=sampler)
+    # Set up dataloader
+    # dataloader = get_dataloader(tokenizer, args)
     if rank == 0:
         print("tokenizer加载完成")
     # TODO 测试通过添加读取数据集进行训练的代码
@@ -527,24 +527,24 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                             {"memory/reserved_before_forward": reserved_before_forward}, rank)
 
                 # 获取问题和答案
-                # prompt = batch[0]  # 取第一个元素，因为batch_size=1
+                prompt = batch[0]  # 取第一个元素，因为batch_size=1
 
                 # Forward pass
                 with sync_context:
                     with autocast:
                         # 1. 生成多个候选答案
-                        # responses, prompt_lens = generate_batch_fsdp(
-                        #     rank,
-                        #     model,
-                        #     tokenizer,
-                        #     prompt,
-                        #     num_generations=args["num_generations"],
-                        #     max_new_tokens=args["max_completion_length"],
-                        #     temperature=args["temperature"]
-                        # )
+                        responses, prompt_lens = generate_batch_fsdp(
+                            rank,
+                            model,
+                            tokenizer,
+                            prompt,
+                            num_generations=args["num_generations"],
+                            max_new_tokens=args["max_completion_length"],
+                            temperature=args["temperature"]
+                        )
 
-                        # if rank == 0:
-                        #     print(responses)
+                        if rank == 0:
+                            print(responses)
                         # 2. 计算奖励得分
 
                         # 3. 计算policy和ref模型logprobs
@@ -1251,7 +1251,7 @@ def generate_batch_fsdp(
 if __name__ == "__main__":
     world_size = 8
     import json
-    with open("config.json", "r", encoding="utf-8") as f:
+    with open("/root/projs/PesticideRecipeGen/train/GRPO/config.json", "r", encoding="utf-8") as f:
         args = json.load(f)
 
     try:
