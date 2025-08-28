@@ -31,7 +31,7 @@ print(f"Using device: {device}")
 
 # qwen路径配置
 base_model_path = "/data/models/qwen2.5-72B"
-lora_adapter_path = "/root/projs/LLaMA-Factory/src/saves/Qwen2.5-72B-Instruct/lora/train_2025-07-05-14-48-49"
+#lora_adapter_path = "/root/projs/LLaMA-Factory/src/saves/Qwen2.5-72B-Instruct/lora/train_2025-07-05-14-48-49"
 
 model_path = "/home/iiap/Simple_RLHF/model/actor_final"
 # tokenizer = AutoTokenizer.from_pretrained(model_path)
@@ -85,19 +85,11 @@ def load_model():
         # low_cpu_mem_usage=True
     )
 
-    # --- 5. 加载并融合LoRA Adapter ---
-    # PEFT库会自动处理已经分布在多卡上的基础模型
-    print("\n正在加载LoRA Adapter...")
-    model = PeftModel.from_pretrained(
-        base_model,          # 传入已经加载到多卡上的模型
-        lora_adapter_path,     # LoRA adapter的路径或ID
-        is_trainable=False   # 我们是用于推理，所以设置为False
-    )
-    print("LoRA Adapter加载并融合完成。")
+    print("基础模型加载完成。")
 
     # 注意：即使模型分布在多卡，输入数据通常也需要放到第一个设备上
     # `device_map="auto"`通常会将模型的输入层(word_embeddings)放在`cuda:0`上
-    return (model, tokenizer)
+    return (base_model, tokenizer)
 
 
 async def qwen_generate_response(prompt, max_tokens, temperature):
