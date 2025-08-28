@@ -2,6 +2,7 @@ import copy
 import functools
 import gc
 import math
+import time
 import os
 import sys
 import time
@@ -539,6 +540,10 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                 with sync_context:
                     with autocast:
                         # 1. 生成多个候选答案
+                        if rank == 0:
+                            print(time.strftime(
+                                '%Y-%m-%d %H:%M:%S', time.localtime()))
+                            print("开始推理")
                         responses, prompt_lens = generate_batch_fsdp(
                             rank,
                             model,
@@ -549,13 +554,23 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                             temperature=args["temperature"],
                             num_parallel=args["num_generations"]//2
                         )
+                        if rank == 0:
+                            print(time.strftime(
+                                '%Y-%m-%d %H:%M:%S', time.localtime()))
+                            print("完成推理")
 
                         # 2. 计算奖励得分
                         rewards = compute_rewards(prompt, responses)
                         if rewards is None or sum(rewards) == 0:
                             continue
+                        if rank == 0:
+                            print(rewards)
                         # 3. 计算policy和ref模型logprobs
                         # 计算策略模型的对数概率
+                        if rank == 0:
+                            print(time.strftime(
+                                '%Y-%m-%d %H:%M:%S', time.localtime()))
+                            print("开始计算logprob")
                         policy_logprobs = []
                         for response in responses:
                             policy_logprob = compute_log_probs(
@@ -581,7 +596,10 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                                     device
                                 )
                                 reference_logprobs.append(reference_logprob)
-
+                        if rank == 0:
+                            print(time.strftime(
+                                '%Y-%m-%d %H:%M:%S', time.localtime()))
+                            print("完成计算logprob")
                         # 转换为张量
                         policy_logprobs = torch.cat(policy_logprobs)
                         reference_logprobs = torch.cat(reference_logprobs)
@@ -1187,16 +1205,15 @@ def _generate_parallel_responses(
 ) -> Tuple[List[str], List[int]]:
     """
     为单个提示生成 num_current_batch_generations 次响应，每次作为一个批次推理。
+    启用 KV-Cache 以提高推理效率。
     """
     model.eval()
     device = f"cuda:{local_rank}"
     tokenizer.padding_side = 'left'
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-
     # 将单个提示复制 num_current_batch_generations 次
     prompts_list = [prompt] * num_current_batch_generations
-
     # 编码批处理的提示
     inputs = tokenizer(
         prompts_list,
@@ -1204,74 +1221,83 @@ def _generate_parallel_responses(
         padding=True,
         truncation=True,
     ).to(device)
-
     input_ids = inputs["input_ids"]
     attention_mask = inputs["attention_mask"]
-
     batch_size, prompt_length = input_ids.shape
-
-    generated_tokens = input_ids
+    generated_tokens = input_ids  # 最初包含完整的prompt_ids
+    # 初始化 unfinished_sequences 跟踪每个序列是否完成
     unfinished_sequences = torch.ones(
         batch_size, dtype=torch.long, device=device)
-
     # 存储每个响应的生成长度
     response_length = torch.zeros(
         batch_size, dtype=torch.long, device=device)
+    past_key_values = None  # 初始化 KV Cache
 
     with torch.no_grad():
-        for _ in range(max_new_tokens):
-            # 当使用`use_cache=False`时，每次迭代都需要传入完整的`generated_tokens`
-            # 如果使用KV Cache，这里只需要传入`next_token`并更新`past_key_values`
+        for i in range(max_new_tokens):
+            if i == 0:  # 第一次迭代，传入完整的 input_ids
+                model_input_ids = input_ids
+                model_attention_mask = attention_mask
+            else:  # 后续迭代，只传入上一步生成的 token
+                model_input_ids = next_token  # `next_token` 是 [batch_size, 1]
+                # attention_mask 每次都会扩展一个 token，所以需要传递完整的
+                # 这里 `attention_mask` 已经是包含了 `generated_tokens` 的全部长度
+                # 模型的 forward 会根据 `model_input_ids` 和 `attention_mask` 计算新的 KV cache
+                # 注意：如果 `model_input_ids` 长度为1，attention_mask 也只需要处理到新加入的token
+                # 但更简单且兼容性更好的方法是，每次 `attention_mask` 也只传入最新的部分
+                # 然而，如果模型内部的 KV cache 处理逻辑依赖于传入的 attention_mask 长度与 input_ids 长度匹配，
+                # 那么这里传入完整的 `attention_mask` 就不对了。
+                # 正确做法是，attention_mask也每次更新，长度与generated_tokens匹配。
+                # 但更标准的hf transformers模型在使用KV cache时，attention_mask会是累积的。
+                # 下面使用累积的 attention_mask。
             outputs = model(
-                input_ids=generated_tokens,  # 注意这里传入的是所有已生成的token
-                attention_mask=attention_mask,
-                use_cache=False  # 根据原先_generate_single_response的设定，这里也禁用KV Cache
+                input_ids=model_input_ids,
+                attention_mask=model_attention_mask,  # 传入累积的 attention_mask
+                past_key_values=past_key_values,  # 传入上一步的 KV Cache
+                use_cache=True,  # 明确启用 KV Cache
             )
-            # 获取最后一个 token 的 logits，形状为 [batch_size, vocab_size]
-            next_token_logits = outputs.logits[:, -1, :]
 
+            # 总是取最后一个 token 的 logits
+            next_token_logits = outputs.logits[:, -1, :]
             if temperature > 0 and temperature != 1.0:
                 next_token_logits = next_token_logits / temperature
-
             probs = torch.nn.functional.softmax(next_token_logits, dim=-1)
             next_token = _sample_top_p(probs, p=top_p)
-            # 对于已经完成的序列（`unfinished_sequences`为0），将生成的 token 替换为 pad_token_id
-            # 这样这些序列就不会继续生成有意义的 token
+
+            # 对于已经完成的序列，将生成的 token 替换为 pad_token_id
             next_token = next_token * unfinished_sequences.unsqueeze(
                 1) + tokenizer.pad_token_id * (1 - unfinished_sequences.unsqueeze(1))
-
             # 将新生成的 token 添加到已生成的序列中
             generated_tokens = torch.cat(
                 [generated_tokens, next_token], dim=-1)
-
             # 更新 attention_mask：对于尚未完成的序列，其 attention_mask 增加一个 1
-            attention_mask = torch.cat(
-                [attention_mask, unfinished_sequences.unsqueeze(1)],
+            # 注意：这里我们更新的 attention_mask 是用于下一次迭代的，因为它代表了 `generated_tokens` 的 mask
+            model_attention_mask = torch.cat(  # 这就是累积的 attention_mask
+                [model_attention_mask, unfinished_sequences.unsqueeze(1)],
                 dim=1
             )
+
+            # 更新 KV Cache
+            past_key_values = outputs.past_key_values  # 从模型输出中获取更新后的 KV Cache
             # 更新响应长度，只计算尚未完成的序列
             response_length += unfinished_sequences
-
             # 检查哪些序列已完成 (生成 EOS token)
             unfinished_sequences = unfinished_sequences & (
                 next_token.squeeze(1) != tokenizer.eos_token_id)
-
             # 如果所有序列都已完成，则提前退出循环
             if not torch.any(unfinished_sequences):
                 break
+
     # 提取生成的补全部分（排除原始提示）
     output_ids = generated_tokens[:, prompt_length:]
-
     all_generated_texts: List[str] = []
     all_response_lengths: List[int] = []
-
     # 遍历批次中的每个生成结果进行解码
     for i in range(batch_size):
         generated_text = tokenizer.decode(
             output_ids[i], skip_special_tokens=True)
         all_generated_texts.append(generated_text)
         all_response_lengths.append(response_length[i].item())
-
     return all_generated_texts, all_response_lengths
 
 
@@ -1374,7 +1400,6 @@ def compute_rewards(
                 response_data = request_hanka_api(system_msg, user_msg)
                 # --- 解析API响应以提取奖励 ---
                 model_output = response_data
-                print(model_output)
                 if model_output is not None and model_output != "":
                     match = re.search(r'总分:\s*(\d+)', model_output)
                     if match:
