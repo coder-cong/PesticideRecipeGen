@@ -544,16 +544,17 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                             print(time.strftime(
                                 '%Y-%m-%d %H:%M:%S', time.localtime()))
                             print("开始推理")
-                        responses, prompt_lens = generate_batch_fsdp(
-                            rank,
-                            model,
-                            tokenizer,
-                            prompt,
-                            num_generations=args["num_generations"],
-                            max_new_tokens=args["max_completion_length"],
-                            temperature=args["temperature"],
-                            num_parallel=args["num_generations"]//2
-                        )
+                        # responses, prompt_lens = generate_batch_fsdp(
+                        #     rank,
+                        #     model,
+                        #     tokenizer,
+                        #     prompt,
+                        #     num_generations=args["num_generations"],
+                        #     max_new_tokens=args["max_completion_length"],
+                        #     temperature=args["temperature"],
+                        #     num_parallel=args["num_generations"]//2
+                        # )
+                        responses = ["关于农药的知识我一点都不会哦"]*args["num_generations"]
                         if rank == 0:
                             print(time.strftime(
                                 '%Y-%m-%d %H:%M:%S', time.localtime()))
@@ -609,13 +610,13 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                             policy_logprobs,
                             reference_logprobs,
                             rewards_tensor,
-                            beta=args.beta
                         )
                         effective_batch_idx += 1
 
                     # Scale loss for gradient accumulation
                     loss = loss / gradient_accumulation_steps
-
+                    if rank == 0:
+                        print(f"loss:{loss.item()}")
                     # Log memory usage
                     if batch_idx == 0 and epoch == 0 and (rank == 0 or args['verbose']):
                         reserved_after_forward = torch.cuda.memory_reserved(
@@ -635,7 +636,7 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                         loss.backward()
 
                 # Record loss
-                bs = batch['input_ids'].shape[0]
+                bs = 1
                 ddp_loss[0] += loss.item() * bs * gradient_accumulation_steps
                 ddp_loss[1] += bs
 
@@ -1387,7 +1388,7 @@ def compute_rewards(
         如果任何一个响应的打分在重试后仍失败，则整个函数返回 None。
     """
     rewards: List[float] = []
-
+    return [2.2]*len(responses)
     # 循环处理每个响应
     for i, response_text in enumerate(responses):
         current_reward = None  # 用于存储当前响应的奖励
@@ -1538,7 +1539,7 @@ def compute_grpo_loss(policy_logprobs, reference_logprobs, rewards, beta=0.1):
 if __name__ == "__main__":
     world_size = 8
     import json
-    with open("/root/projs/PesticideRecipeGen/train/GRPO/config.json", "r", encoding="utf-8") as f:
+    with open("/data/lyl/projs/PesticideRecipeGen/train/GRPO/config.json", "r", encoding="utf-8") as f:
         args = json.load(f)
 
     try:

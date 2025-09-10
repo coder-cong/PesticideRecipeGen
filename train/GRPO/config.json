@@ -5,7 +5,7 @@
     "gradient_accumulation_steps": 1,
     "num_epochs": 1,
     "precision": "bf16",
-    "model_name": "/data/models/qwen2.5-7B",
+    "model_name": "/data/lyl/models/qwen2.5-7B",
     "model_name_72B": "/data/models/trained/qwen2.5-72B-sft",
     "train_type": "qlora",
     "verbose": true,
@@ -29,7 +29,7 @@
     "name": null,
     "group": null,
     "entity": null,
-    "data_path": "/root/projs/PesticideRecipeGen/data/distill/distill_data_alpaca.json",
+    "data_path": "/data/lyl/projs/PesticideRecipeGen/data/distill/distill_data_alpaca.json",
     "dataset": "alpaca_sample",
     "dataset_samples": 512,
     "context_length": 512,
@@ -42,5 +42,6 @@
     "no_sync": false,
     "num_generations": 8,
     "max_completion_length": 1024,
-    "temperature": 1.0
+    "temperature": 1.0,
+    "save_model": true
 }
