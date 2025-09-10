@@ -204,7 +204,91 @@ def compute_logprobs_test():
     print([tokenizer.decode(token) for token in tokens[0]])
 
 
+def save_lora_weight():
+    import os
+    from pathlib import Path
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+    from peft import LoraConfig, get_peft_model, TaskType
+
+    # --- 配置 ---
+    # 请将此替换为你要加载的7B模型名称或本地路径
+    # 例如："mistralai/Mistral-7B-v0.1" 或 "Qwen/Qwen1.5-7B-Chat"
+    # 注意：Llama系列模型可能需要Hugging Face token或本地下载
+    MODEL_NAME = "/data/lyl/models/qwen2.5-7B"
+
+    # 保存未训练LoRA适配器的目录
+    OUTPUT_LORA_DIR = "./untrained_7b_lora"
+
+    # --- 1. 加载基础模型和分词器 ---
+    print(f"Loading base model: {MODEL_NAME}...")
+
+    # 检查是否有可用的CUDA设备
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Using device: {device}")
+
+    # 建议使用4位量化加载基础模型以节省GPU内存
+    # 如果内存充足，可以移除 quantization_config
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_use_double_quant=True,
+    )
+
+    model = AutoModelForCausalLM.from_pretrained(
+        MODEL_NAME,
+        quantization_config=bnb_config,  # 启用4位量化
+        torch_dtype=torch.bfloat16,      # 使用bfloat16进行计算
+        device_map="auto",               # 自动将模型加载到可用设备
+        trust_remote_code=True,          # 某些模型（如Qwen）需要此项
+    )
+    tokenizer = AutoTokenizer.from_pretrained(
+        MODEL_NAME, trust_remote_code=True)
+
+    # 某些模型可能没有pad_token，设置eos_token作为pad_token
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    print("Base model and tokenizer loaded.")
+
+    # --- 2. 定义LoRA配置 ---
+    # 这些是 Mistral-7B-v0.1 通常的 LoRA 目标模块。
+    # 对于其他模型，你可能需要根据其架构进行调整。
+    # 常见的是 QKV 投影层，以及 MLP 层。
+    lora_target_modules = ["q_proj", "v_proj", "k_proj",
+                           "o_proj", "gate_proj", "up_proj", "down_proj"]
+
+    lora_config = LoraConfig(
+        r=8,                           # LoRA的秩，决定了适配器的大小和表达能力
+        lora_alpha=16,                 # LoRA缩放因子
+        target_modules=lora_target_modules,  # 要应用LoRA的模块名称列表
+        lora_dropout=0.05,             # LoRA层的dropout率
+        bias="none",                   # 偏置参数的处理方式
+        task_type=TaskType.CAUSAL_LM,  # 任务类型，这里是因果语言模型
+    )
+    print("LoRA configuration defined.")
+
+    # --- 3. 创建 PEFT 模型（应用LoRA） ---
+    # 这一步将LoRA层添加到基础模型上，但LoRA权重是未训练的。
+    peft_model = get_peft_model(model, lora_config)
+
+    # 打印模型中可训练参数的数量，主要是LoRA参数
+    peft_model.print_trainable_parameters()
+    print("PEFT (LoRA) model created (untrained).")
+
+    # --- 4. 保存未训练的LoRA适配器 ---
+    Path(OUTPUT_LORA_DIR).mkdir(parents=True, exist_ok=True)  # 创建输出目录
+    peft_model.save_pretrained(OUTPUT_LORA_DIR)
+
+    print(
+        f"\nUntrained LoRA adapter saved to: {os.path.abspath(OUTPUT_LORA_DIR)}")
+    print(
+        f"你可以将此目录 '{os.path.abspath(OUTPUT_LORA_DIR)}' 作为 vLLM 的 lora_path 进行加载。")
+
+
 if __name__ == "__main__":
     # sample_test()
     # reward_test()
-    compute_logprobs_test()
+    # compute_logprobs_test()
+    save_lora_weight()

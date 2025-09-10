@@ -1,0 +1,13 @@
+# config.yaml
+
+model: /data/lyl/models/qwen2.5-7B
+host: "0.0.0.0"
+port: 8000
+uvicorn-log-level: "info"
+dtype: "auto"
+quantization: "bitsandbytes"
+enforce-eager: False
+enable-lora: True
+# max_new_tokens: 128
+tensor-parallel-size: 2
+gpu-memory-utilization: 0.6
