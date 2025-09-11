@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/data/lyl/projs/PesticideRecipeGen/train/GRPO/fsdp_qlora_grpo.py", line 19, in <module>
+    import bitsandbytes as bnb
+ModuleNotFoundError: No module named 'bitsandbytes'

@@ -1,6 +1,7 @@
 {
     "master_addr": "127.0.0.1",
     "master_port": "7890",
+    "world_size": 8,
     "batch_size": 1,
     "gradient_accumulation_steps": 1,
     "num_epochs": 1,
@@ -8,6 +9,7 @@
     "model_name": "/data/lyl/models/qwen2.5-7B",
     "model_name_72B": "/data/models/trained/qwen2.5-72B-sft",
     "train_type": "qlora",
+    "vllm_server": "http://localhost:8000",
     "verbose": true,
     "loading_workers": -1,
     "low_memory": true,

@@ -1,3 +1,6 @@
+import requests
+from typing import List, Dict, Any, Optional
+import json
 import os
 import argparse
 from typing import List, Tuple
@@ -287,8 +290,76 @@ def save_lora_weight():
         f"你可以将此目录 '{os.path.abspath(OUTPUT_LORA_DIR)}' 作为 vLLM 的 lora_path 进行加载。")
 
 
+def get_vllm_inference(
+    prompt: str,
+    num_responses: int = 1,
+    vllm_server_url: str = "http://localhost:8000",
+    max_tokens: int = 256,
+    temperature: float = 0.7,
+    top_p: float = 0.95,
+    stop_sequences: Optional[List[str]] = None,
+) -> List[str]:
+    """
+    通过请求本地部署的vLLM服务（/v1/completions API）来获取文本生成结果。
+    此函数假设输入的prompt已经应用了chat template或其他必要的格式。
+    Args:
+        prompt (str): 输入的文本提示 (prompt)，此字符串应已包含模型所需的聊天模板格式。
+        num_responses (int): 需要生成的回答数量 (对应OpenAI API的 'n' 参数)。默认为1。
+        vllm_server_url (str): 本地vLLM服务的URL地址。默认为 "http://localhost:8000"。
+        max_tokens (int): 生成的最大token数量。默认为256。
+        temperature (float): 控制生成文本的随机性。较高的值会使输出更随机，较低的值会使输出更确定。默认为0.7。
+        top_p (float): 控制生成文本的多样性。只考虑累积概率达到top_p的token。默认为0.95。
+        stop_sequences (List[str], optional): 生成文本的停止序列列表。当模型生成到这些序列中的任何一个时，将停止生成。例如 ["\n", "###"]。默认为None。
+    Returns:
+        List[str]: 包含所有生成回答的字符串列表。如果请求失败或没有生成结果，则返回空列表。
+    """
+    generated_texts: List[str] = []
+
+    api_endpoint = f"{vllm_server_url}/v1/completions"
+    payload = {
+        "prompt": prompt,
+        "n": num_responses,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "top_p": top_p,
+        "stream": False,  # We want the full response at once
+    }
+    if stop_sequences:
+        payload["stop"] = stop_sequences
+    print(f"Requesting vLLM text completion at: {api_endpoint}")
+    print(f"Payload: {json.dumps(payload, indent=2,ensure_ascii=False)}")
+    try:
+        response = requests.post(api_endpoint, json=payload, timeout=120)
+        response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
+        response_data = response.json()
+        if 'choices' in response_data:
+            for choice in response_data['choices']:
+                # Text completion response structure: choice['text']
+                if 'text' in choice:
+                    generated_texts.append(choice['text'])
+        else:
+            print(f"Error: No 'choices' found in response: {response_data}")
+    except requests.exceptions.Timeout:
+        print(f"Error: Request to vLLM server timed out after 120 seconds.")
+    except requests.exceptions.ConnectionError as e:
+        print(
+            f"Error: Could not connect to vLLM server at {vllm_server_url}. Is it running? Details: {e}")
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP Error: {e.response.status_code} - {e.response.text}")
+    except json.JSONDecodeError:
+        print(f"Error: Could not decode JSON response from vLLM server.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    return generated_texts
+
+
 if __name__ == "__main__":
     # sample_test()
     # reward_test()
     # compute_logprobs_test()
-    save_lora_weight()
+    # save_lora_weight()
+    from dataset import GRPODataset
+    tokenizer = AutoTokenizer.from_pretrained("/data/lyl/models/qwen2.5-7B")
+    data_path = "/data/lyl/projs/PesticideRecipeGen/data/distill/distill_data_alpaca.json"
+    dataset = GRPODataset(data_path, tokenizer)
+    print(get_vllm_inference(dataset[0], 8, max_tokens=1024))

@@ -1,2 +1,2 @@
-nohup accelerate launch python_grpo_self.py \
-      > grpo.log &
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+nohup python fsdp_qlora_grpo.py > grpo.log &

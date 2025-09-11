@@ -1,3 +1,4 @@
+from torch.distributed.fsdp.api import StateDictType, FullStateDictConfig
 import copy
 import functools
 import gc
@@ -175,7 +176,9 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
     os.environ['MASTER_PORT'] = args["master_port"]
 
     rank = local_rank
-
+    if rank == 0:
+        print(
+            f"world_size:{world_size},device_count:{torch.cuda.device_count()}")
     dist.init_process_group("nccl", rank=rank, world_size=world_size)
     torch.cuda.set_device(local_rank)
     device = f"cuda:{local_rank}"
@@ -427,6 +430,65 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
         logger.log(
             {"memory/reserved_after_model_wrap": torch.cuda.memory_reserved(local_rank)}, rank)
 
+    dist.barrier()
+    torch.cuda.synchronize()
+    if rank == 0:
+        print(f"CUDA event elapsed time: {time_taken} sec")
+        logger.log({"time_taken": time_taken}, rank)
+    for line in memory_stats:
+        print(line)
+
+    if rank == 0:
+        print(f"rank:0保存模型测试")
+    # End logging
+    logger.finish(rank=rank)
+
+    # Save model - ref: https://github.com/pytorch/pytorch/issues/98823
+    # HQQLinear custom state_dict() method causes issues when saving.
+    # Model is saved fine when `state_dict()` method is removed.
+    # Non param/buffer types are not saved with FSDP.
+    # It might be better to just save the trained lora layers.
+    # summon_full_params on lora layers and save.
+    if args["save_model"]:
+        if rank == 0:
+            os.makedirs(args["output_dir"], exist_ok=True)
+        dist.barrier()
+        save_policy = FullStateDictConfig(offload_to_cpu=True, rank0_only=True)
+        if args["train_type"] in ["custom_lora", "custom_qlora", "hqq_lora", "hqq_dora", "bnb_dora", "bnb_llama_pro", "hqq_llama_pro"]:
+            cpu_state_dict = {}
+            if args["train_type"] in ["bnb_llama_pro", "hqq_llama_pro"]:
+                trainable_fsdp_modules = [
+                    (n, m) for n, m in model.named_modules() if n.endswith(tuple(new_layer_names))]
+            else:
+                trainable_fsdp_modules = [(n, m) for n, m in model.named_modules(
+                ) if n.endswith(('lora_AB', 'dora_layer', 'magnitude_layer'))]
+            for prefix, module in trainable_fsdp_modules:
+                prefix = (prefix.replace("_fsdp_wrapped_module.", "")
+                                .replace("_checkpoint_wrapped_module.", "")
+                                .replace("_offload_wrapped_module.", ""))
+                if args['verbose']:
+                    print(f"Saving {prefix}")
+                with FSDP.state_dict_type(module, StateDictType.FULL_STATE_DICT, save_policy):
+                    cpu_state_dict = {
+                        **cpu_state_dict, **{f"{prefix}.{k}": v for k, v in module.state_dict().items()}}
+                dist.barrier()
+                torch.cuda.synchronize()
+            if rank == 0:
+                print("Saving trained LoRA weights.")
+                save_file(cpu_state_dict, os.path.join(
+                    args["output_dir"], "model_state_dict.safetensors"))
+                print("Done", rank)
+        else:
+            with FSDP.state_dict_type(model, StateDictType.FULL_STATE_DICT, save_policy):
+                cpu_state_dict = model.state_dict()
+                if rank == 0:
+                    print("Saving full model weights.")
+                    save_file(cpu_state_dict, os.path.join(
+                        args["output_dir"], "model_state_dict.safetensors"))
+                    print("Done", rank)
+
+    dist.barrier()  # Stop other processes ending while model saving - probably not needed?
+    # save_lora_adapters_for_vllm(model, "qwen-7B-grpo-adapter", rank)
     # Synchronize at the start
     dist.barrier()
 
@@ -544,17 +606,12 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                             print(time.strftime(
                                 '%Y-%m-%d %H:%M:%S', time.localtime()))
                             print("开始推理")
-                        # responses, prompt_lens = generate_batch_fsdp(
-                        #     rank,
-                        #     model,
-                        #     tokenizer,
-                        #     prompt,
-                        #     num_generations=args["num_generations"],
-                        #     max_new_tokens=args["max_completion_length"],
-                        #     temperature=args["temperature"],
-                        #     num_parallel=args["num_generations"]//2
-                        # )
-                        responses = ["关于农药的知识我一点都不会哦"]*args["num_generations"]
+
+                        responses = get_vllm_inference(prompt,
+                                                       vllm_server_url=args["vllm_server"],
+                                                       num_generations=args["num_generations"],
+                                                       max_tokens=args["max_completion_length"],
+                                                       temperature=args["temperature"],)
                         if rank == 0:
                             print(time.strftime(
                                 '%Y-%m-%d %H:%M:%S', time.localtime()))
@@ -1388,7 +1445,8 @@ def compute_rewards(
         如果任何一个响应的打分在重试后仍失败，则整个函数返回 None。
     """
     rewards: List[float] = []
-    return [2.2]*len(responses)
+    import random
+    return [random.random() for i in range(len(responses))]
     # 循环处理每个响应
     for i, response_text in enumerate(responses):
         current_reward = None  # 用于存储当前响应的奖励
@@ -1536,17 +1594,218 @@ def compute_grpo_loss(policy_logprobs, reference_logprobs, rewards, beta=0.1):
     return loss
 
 
+def get_vllm_inference(
+    prompt: str,
+    num_generations: int = 1,
+    vllm_server_url: str = "http://localhost:8000",
+    max_tokens: int = 256,
+    temperature: float = 0.7,
+    top_p: float = 0.95,
+    stop_sequences: Optional[List[str]] = None,
+) -> List[str]:
+    """
+    通过请求本地部署的vLLM服务（/v1/completions API）来获取文本生成结果。
+    此函数假设输入的prompt已经应用了chat template或其他必要的格式。
+    Args:
+        prompt (str): 输入的文本提示 (prompt)，此字符串应已包含模型所需的聊天模板格式。
+        num_responses (int): 需要生成的回答数量 (对应OpenAI API的 'n' 参数)。默认为1。
+        vllm_server_url (str): 本地vLLM服务的URL地址。默认为 "http://localhost:8000"。
+        max_tokens (int): 生成的最大token数量。默认为256。
+        temperature (float): 控制生成文本的随机性。较高的值会使输出更随机，较低的值会使输出更确定。默认为0.7。
+        top_p (float): 控制生成文本的多样性。只考虑累积概率达到top_p的token。默认为0.95。
+        stop_sequences (List[str], optional): 生成文本的停止序列列表。当模型生成到这些序列中的任何一个时，将停止生成。例如 ["\n", "###"]。默认为None。
+    Returns:
+        List[str]: 包含所有生成回答的字符串列表。如果请求失败或没有生成结果，则返回空列表。
+    """
+    generated_texts: List[str] = []
+
+    api_endpoint = f"{vllm_server_url}/v1/completions"
+    payload = {
+        "prompt": prompt,
+        "n": num_generations,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "top_p": top_p,
+        "stream": False,  # We want the full response at once
+    }
+    if stop_sequences:
+        payload["stop"] = stop_sequences
+    print(f"Requesting vLLM text completion at: {api_endpoint}")
+    print(f"Payload: {json.dumps(payload, indent=2,ensure_ascii=False)}")
+    try:
+        response = requests.post(api_endpoint, json=payload, timeout=120)
+        response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
+        response_data = response.json()
+        if 'choices' in response_data:
+            for choice in response_data['choices']:
+                # Text completion response structure: choice['text']
+                if 'text' in choice:
+                    generated_texts.append(choice['text'])
+        else:
+            print(f"Error: No 'choices' found in response: {response_data}")
+    except requests.exceptions.Timeout:
+        print(f"Error: Request to vLLM server timed out after 120 seconds.")
+    except requests.exceptions.ConnectionError as e:
+        print(
+            f"Error: Could not connect to vLLM server at {vllm_server_url}. Is it running? Details: {e}")
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP Error: {e.response.status_code} - {e.response.text}")
+    except json.JSONDecodeError:
+        print(f"Error: Could not decode JSON response from vLLM server.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    return generated_texts
+
+
+# from safetensors.torch import save_file # For safetensors
+# For demonstration purposes, assuming these are defined
+# from peft import PeftModelForCausalLM, LoraConfig, get_peft_model
+# from transformers import AutoModelForCausalLM, AutoTokenizer
+
+
+def save_lora_adapters_for_vllm(
+    fsdp_model: FSDP,
+    save_path: str,
+    rank: int,
+):
+    """
+    保存FSDP包装的PEFT QLoRA模型中的LoRA适配器权重，格式与vLLM兼容。
+    Args:
+        fsdp_model (FSDP): 你的FSDP包装的PeftModelForCausalLM实例。
+        save_path (str): LoRA适配器权重文件的完整保存路径 (e.g., "path/to/adapter_model.safetensors")。
+        rank (int): 当前进程的全局rank。
+    """
+    if rank == 0:
+        print(f"Rank {rank}: Preparing to save LoRA adapters to {save_path}")
+    # 配置FSDP的state_dict保存行为：完整状态字典，offload到CPU，只在rank 0收集
+    # `rank0_only=True` 是关键，它会确保只有rank 0会收集所有分片数据并构建完整的state_dict
+    save_policy = FullStateDictConfig(offload_to_cpu=True, rank0_only=True)
+    # 初始化一个空的字典来收集所有LoRA模块的状态
+    lora_cpu_state_dict = {}
+    # 遍历FSDP模型的命名模块
+    # 注意：这里的 `fsdp_model` 是顶层的 `FullyShardedDataParallel` 实例
+    for name, module in fsdp_model.named_modules():
+        # 你的结构显示 LoRA 参数在 lora.Linear4bit 内部
+        # 并且 LoRA 权重模块是 lora_A 和 lora_B
+        # 检查模块名称是否以 '.lora_A' 或 '.lora_B' 结尾
+        # 并且其父模块是 'lora.Linear4bit'
+        # 简单的方法是查找 `lora_A` 和 `lora_B` 子模块
+        # 或者更直接地，查找包含 `.lora_A.` 或 `.lora_B.` 的路径
+        if (".lora_A." in name or ".lora_B." in name) and "base_layer" not in name:
+            # 这里的 name 会是类似：
+            # model.layers.0._fsdp_wrapped_module._checkpoint_wrapped_module.self_attn.q_proj.lora_A.default._fsdp_wrapped_module
+            # 我们需要捕获 `lora_A.default.weight` 或者 `lora_B.default.weight` 这样的键
+            # PEFT 通常希望的键名是 `base_model.model.layers.0.self_attn.q_proj.lora_A.default.weight`
+            # 所以我们需要清理FSDP和_checkpoint_wrapped_module等无关前缀
+
+            # 剥离FSDP和CheckpointWrapper的冗余前缀
+            # 从 `name` 中识别出真正的模块路径
+            cleaned_name = (
+                name.replace("_fsdp_wrapped_module.", "")
+                .replace("_checkpoint_wrapped_module.", "")
+                .replace("base_model.", "")  # 如果base_model是外部包裹的
+            )
+            # 找到 lora_A 或 lora_B 所在的 `module`
+            # 由于 FSDP 内部的 `lora_A` 和 `lora_B` 已经是 FSDP 的叶子模块（被FSDP包裹了），
+            # 我们可以直接对这些 FSDP 模块调用 `state_dict`。
+            # 示例中的结构显示 lora_A 和 lora_B 内部又有一个 FSDP
+            # lora_A: ModuleDict((default): FullyShardedDataParallel(...))
+            # 所以我们需要找到这个内部的 FSDP 模块
+            # module 此时是 lora.Linear4bit 的子模块，例如 lora_A 的 ModuleDict
+            # 我们需要访问 ModuleDict 里的 'default' 项，它才是 FSDP 实例
+
+            # 检查当前 module 是否是 FullyShardedDataParallel 实例
+            # 如果是，那么它就是我们要收集其权重的LoRA A或B矩阵
+            # 名字类似 `model.layers.0.self_attn.q_proj.lora_A.default`
+            if isinstance(module, FSDP):
+                # 构建用于保存的键名
+                # 例如 `model.layers.0.self_attn.q_proj.lora_A.default.weight`
+                # 但是PEFT期望的格式是 `base_model_model.layers.0.self_attn.q_proj.lora_A.weight`
+                # 实际上vLLM加载LoRA需要的是 `adapter_model.safetensors` 文件，里面的键名
+                # PEFT内部保存时会去除 `base_model.model` 前缀，只保留 `model.layers.0...`
+                # 并且 LoRA 的 weight 是直接作为 `lora_A.weight` 而不是 `lora_A.default.weight`
+                # 所以我们期望的最终键名是 `model.layers.0.self_attn.q_proj.lora_A.weight`
+                # 移除 FSDP 相关和 `default` 模块dict的名称
+                final_key_prefix = (
+                    name.replace("_fsdp_wrapped_module.", "")
+                    .replace("_checkpoint_wrapped_module.", "")
+                    .replace("base_model.", "")  # 如果PeftModel外面还有一层base_model
+                    .replace(".default", "")  # 移除 ModuleDict 的 'default'
+                    .replace(".lora_A", ".lora_A.weight")  # 直接定位到权重
+                    .replace(".lora_B", ".lora_B.weight")
+                    # for LoRA-Dora/Linear4bit
+                    .replace(".lora_magnitude_vector", ".lora_magnitude_vector.weight")
+                )
+                # 使用FSDP的state_dict_type上下文管理器来获取完整状态字典
+                with FSDP.state_dict_type(module, StateDictType.FULL_STATE_DICT, save_policy):
+                    # 只有rank 0会收到完整的状态字典（因为rank0_only=True）
+                    if rank == 0:
+                        module_state_dict = module.state_dict()
+                        if 'weight' in module_state_dict:  # LoRA A/B 矩阵通常是 'weight'
+                            lora_cpu_state_dict[final_key_prefix] = module_state_dict['weight']
+                            # print(f"Rank {rank}: Collected LoRA parameter: {final_key_prefix}")
+                        elif 'bias' in module_state_dict:  # 如果有bias，虽然LoRA通常没有
+                            lora_cpu_state_dict[final_key_prefix] = module_state_dict['bias']
+                            # print(f"Rank {rank}: Collected LoRA parameter: {final_key_prefix}")
+                        elif 'lora_magnitude_vector' in final_key_prefix:  # for LoRA-Dora / magnitude_layer
+                            # This is a bit tricky, the structure implies lora_magnitude_vector is also a ModuleDict
+                            # so it would be similar to lora_A.default.weight
+                            # or the correct key
+                            lora_cpu_state_dict[final_key_prefix] = module_state_dict['weight']
+                            # print(f"Rank {rank}: Collected LoRA parameter: {final_key_prefix}")
+        # 针对 PEFT 额外的 bias 参数 (如果有的话, 比如 lora_bias)
+        # 你的结构中没有明确显示 lora_bias，但如果你的 LoRA 配置有 `bias="all"` 或 `bias="lora_only"` 可能会有
+        # if ".bias_layer." in name and isinstance(module, FSDP):
+        #     cleaned_name = (
+        #         name.replace("_fsdp_wrapped_module.", "")
+        #         .replace("_checkpoint_wrapped_module.", "")
+        #         .replace("base_model.", "")
+        #         .replace(".default", "") # Assuming it's inside a ModuleDict
+        #     )
+        #     final_key = f"{cleaned_name}.bias" # Assuming bias parameter is named 'bias'
+        #     with FSDP.state_dict_type(module, StateDictType.FULL_STATE_DICT, save_policy):
+        #         if rank == 0:
+        #             lora_cpu_state_dict[final_key] = module.state_dict()['bias']
+        #             print(f"Rank {rank}: Collected LoRA bias: {final_key}")
+
+    # 确保所有进程都同步，以避免竞争条件
+    dist.barrier()
+    torch.cuda.synchronize()  # 确保CUDA操作完成
+    if rank == 0:
+        if lora_cpu_state_dict:
+            # 确保保存目录存在
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            # 使用 safetensors 格式保存，这是 vLLM 推荐的方式
+            try:
+                from safetensors.torch import save_file
+                save_file(lora_cpu_state_dict, save_path)
+                print(
+                    f"Rank {rank}: Successfully saved LoRA adapters to {save_path}")
+            except ImportError:
+                print("`safetensors` not found. Falling back to `torch.save`.")
+                torch.save(lora_cpu_state_dict, save_path)
+                print(
+                    f"Rank {rank}: Successfully saved LoRA adapters to {save_path} using torch.save")
+            except Exception as e:
+                print(f"Rank {rank}: Error saving LoRA adapters: {e}")
+        else:
+            print(
+                f"Rank {rank}: No LoRA state dict found to save. Double check module naming and FSDP wrapping.")
+
+    dist.barrier()  # 最终同步
+
+
 if __name__ == "__main__":
-    world_size = 8
     import json
     with open("/data/lyl/projs/PesticideRecipeGen/train/GRPO/config.json", "r", encoding="utf-8") as f:
         args = json.load(f)
-
+    world_size = args['world_size']
     try:
         # Run
         mp.spawn(fsdp_main,
                  args=(world_size, args),
-                 nprocs=torch.cuda.device_count(),
+                 #  nprocs=torch.cuda.device_count(),
+                 nprocs=world_size,
                  join=True)
     except AttributeError:
         dist.destroy_process_group()
