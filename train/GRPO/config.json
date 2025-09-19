@@ -1,11 +1,12 @@
 {
     "master_addr": "127.0.0.1",
     "master_port": "7890",
-    "world_size": 8,
+    "world_size": 6,
     "batch_size": 1,
     "gradient_accumulation_steps": 1,
     "num_epochs": 1,
     "precision": "bf16",
+    "model_name_3B": "/data/lyl/models/qwen2.5-3B",
     "model_name": "/data/lyl/models/qwen2.5-7B",
     "model_name_72B": "/data/models/trained/qwen2.5-72B-sft",
     "train_type": "qlora",
@@ -33,7 +34,7 @@
     "entity": null,
     "data_path": "/data/lyl/projs/PesticideRecipeGen/data/distill/distill_data_alpaca.json",
     "save_path": "/data/lyl/qwen-7B-grpo-adapter",
-    "save_interval": 10,
+    "save_interval": 1,
     "dataset": "alpaca_sample",
     "dataset_samples": 512,
     "context_length": 512,
@@ -45,7 +46,7 @@
     "output_dir": "output",
     "no_sync": false,
     "num_generations": 8,
-    "max_completion_length": 1024,
+    "max_completion_length": 10,
     "temperature": 1.0,
     "save_model": true
 }

@@ -235,8 +235,6 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
         dataset, batch_size=args["batch_size"],  sampler=sampler)
     # Set up dataloader
     # dataloader = get_dataloader(tokenizer, args)
-    if rank == 0:
-        print("tokenizer加载完成")
     # TODO 测试通过添加读取数据集进行训练的代码
 
     # Create model
@@ -296,7 +294,7 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
 
             if rank == 0:
                 print("空模型创建完成")
-
+        # 这里每个进程都有一个放在meta设备上的空壳模型
         model.is_loaded_in_4bit = True
 
         # Grab the safetensors files that hold the weights
@@ -304,8 +302,10 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
             files = glob(str(llama_pro_path/"*.safetensors"))
         else:
             try:
+                # idx指向模型文件目录中的index文件，说明了哪些权重分别位于哪些文件中
                 idx = hub.cached_file(
                     args["model_name"], SAFE_WEIGHTS_INDEX_NAME)
+                # files是safetensors文件目录
                 files, _ = hub.get_checkpoint_shard_files(
                     args["model_name"], idx)
             except OSError:
@@ -344,9 +344,7 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
             # TODO 可能需要修改移动设备的逻辑
             parallel(load_and_quantize_parallel, iter(weights.items()), n_workers=n_workers, threadpool=True,
                      model=model, dtype=torch_dtype, device=local_rank, skip_names=load_param_skip_names,
-                     to_cpu=True,
-                     to_meta=False,
-                     #  to_cpu=(args["low_memory"] and rank == 0), to_meta=(args["low_memory"] and rank != 0),
+                     to_cpu=(args["low_memory"] and rank == 0), to_meta=(args["low_memory"] and rank != 0),
                      #  to_cpu=True,
                      #  to_meta=False,
                      verbose=args["verbose"], quant_method=quant_method, is_dora=(args["train_type"] in ["hqq_dora", "bnb_dora"]))
@@ -355,7 +353,6 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
             print(f"Loaded model weights in {time.time()-start:.3f} seconds")
         # cleanup any extra memory usage from parallel loading
         torch.cuda.empty_cache()
-    dist.barrier()
     if rank == 0 or args['verbose']:
         print(
             f"Rank {rank}: Model created: {torch.cuda.memory_reserved(local_rank)/2**30:.3f} GiB")
@@ -430,16 +427,10 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
             {"memory/allocated_after_model_wrap": torch.cuda.memory_allocated(local_rank)}, rank)
         logger.log(
             {"memory/reserved_after_model_wrap": torch.cuda.memory_reserved(local_rank)}, rank)
-
-    dist.barrier()
-    torch.cuda.synchronize()
-
-    if rank == 0:
-        print(f"rank:0保存模型测试")
     # End logging
     logger.finish(rank=rank)
     # Synchronize at the start
-    dist.barrier()
+    dist.barrier(device_ids=[rank])
 
     # Apply activation checkpointing
     if args["use_gradient_checkpointing"]:
@@ -556,7 +547,9 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                                 '%Y-%m-%d %H:%M:%S', time.localtime()))
                             print("开始推理")
 
-                        responses = get_vllm_inference(prompt,
+                        # 这里显存占用和序列长度有关，为了测试把序列长度调小
+                        responses = get_vllm_inference(rank, prompt[:10],
+                                                       model_name=args["model_name"],
                                                        vllm_server_url=args["vllm_server"],
                                                        num_generations=args["num_generations"],
                                                        max_tokens=args["max_completion_length"],
@@ -564,7 +557,7 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                         if rank == 0:
                             print(time.strftime(
                                 '%Y-%m-%d %H:%M:%S', time.localtime()))
-                            print("完成推理")
+                            print(f"完成推理:{responses[-1]}")
 
                         # 2. 计算奖励得分
                         rewards = compute_rewards(prompt, responses)
@@ -660,7 +653,54 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                     if lr_scheduler is not None:
                         lr_scheduler.step()
                     progress_bar.update(1)
+                # 保存 LoRA 适配器（仅在主进程，每 save_interval 个有效 batch）
+                if effective_batch_idx % args["save_interval"] == 0:
+                    print("rank:0正在保存...")
+                    if rank == 0:
+                        # 创建保存目录，添加时间戳或步数以区分
+                        save_dir = os.path.join(
+                            args["save_path"], f"step_{effective_batch_idx}")
+                        print(
+                            f"Rank {rank}: Saving LoRA adapters to {save_dir}")
+                        try:
+                            model.module.save_pretrained(save_dir)
+                            print(
+                                f"Rank {rank}: Successfully saved LoRA adapters to {save_dir}")
+                        except Exception as e:
+                            print(
+                                f"Rank {rank}: Error saving LoRA adapters: {e}")
 
+                        # 向 vLLM 服务器发送请求以更换 LoRA 适配器
+                        vllm_api_endpoint = f"{args['vllm_server']}/v1/load_lora_adapter"
+                        payload = {
+                            "lora_path": save_dir,
+                            # 可选：为 vLLM 指定一个唯一的 LoRA ID
+                            "lora_name": f"step_{effective_batch_idx}"
+                        }
+                        try:
+                            response = requests.post(
+                                vllm_api_endpoint, json=payload, timeout=30)
+                            response.raise_for_status()
+                            print(
+                                f"Rank {rank}: Successfully updated vLLM LoRA adapter at {vllm_api_endpoint}")
+                            if args["log_to"] == "wandb":
+                                logger.log(
+                                    {"vllm_lora_update": f"Updated LoRA at step {effective_batch_idx}"}, rank)
+                        except requests.exceptions.Timeout:
+                            print(
+                                f"Rank {rank}: vLLM API request timed out after 30 seconds")
+                        except requests.exceptions.HTTPError as e:
+                            print(
+                                f"Rank {rank}: vLLM API HTTP error: {e.response.status_code} - {e.response.text}")
+                        except requests.exceptions.RequestException as e:
+                            print(f"Rank {rank}: vLLM API request failed: {e}")
+                        except Exception as e:
+                            print(
+                                f"Rank {rank}: Unexpected error updating vLLM LoRA adapter: {e}")
+
+                    # 同步所有进程，确保保存和 API 调用完成
+                    dist.barrier(device_ids=[rank])
+                    torch.cuda.synchronize()
                 # Log memory usage after backward
                 if batch_idx == 0 and epoch == 0 and (rank == 0 or args['verbose']):
                     reserved_after_backward = torch.cuda.memory_reserved(
@@ -676,6 +716,9 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
                 # Delete the output so more memory frees up before the next forward pass
                 output = None
                 loss = None
+                # 尝试将log_probs里面的值设置为none以节省显存
+                reference_logprobs = None
+                policy_logprobs = None
 
                 # Stop logging memory (first iter)
                 if args['profile_memory'] and batch_idx == 0 and rank == 0 and epoch == 0:
@@ -1509,8 +1552,10 @@ def compute_grpo_loss(policy_logprobs, reference_logprobs, rewards, beta=0.1):
 
 
 def get_vllm_inference(
+    rank: int,
     prompt: str,
     num_generations: int = 1,
+    model_name: str = "Qwen",
     vllm_server_url: str = "http://localhost:8000",
     max_tokens: int = 256,
     temperature: float = 0.7,
@@ -1532,9 +1577,9 @@ def get_vllm_inference(
         List[str]: 包含所有生成回答的字符串列表。如果请求失败或没有生成结果，则返回空列表。
     """
     generated_texts: List[str] = []
-
     api_endpoint = f"{vllm_server_url}/v1/completions"
     payload = {
+        "model": model_name,
         "prompt": prompt,
         "n": num_generations,
         "temperature": temperature,
@@ -1542,12 +1587,17 @@ def get_vllm_inference(
         "top_p": top_p,
         "stream": False,  # We want the full response at once
     }
+    headers = {
+        "Content-Type": "application/json"
+    }
     if stop_sequences:
         payload["stop"] = stop_sequences
+    if rank == 0:
+        print(payload)
     print(f"Requesting vLLM text completion at: {api_endpoint}")
-    print(f"Payload: {json.dumps(payload, indent=2,ensure_ascii=False)}")
     try:
-        response = requests.post(api_endpoint, json=payload, timeout=120)
+        response = requests.post(
+            api_endpoint, headers=headers, json=payload, timeout=10*60)
         response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
         response_data = response.json()
         if 'choices' in response_data:

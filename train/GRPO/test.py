@@ -1,3 +1,5 @@
+import openai
+import time
 import requests
 from typing import List, Dict, Any, Optional
 import json
@@ -359,14 +361,111 @@ def show_model():
         print(s)
 
 
+def test_vllm_with_requests(prompt_text="Hello, who are you?"):
+    url = "http://127.0.0.1:8000/v1/completions"  # 使用 completions 端点
+    headers = {
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "/data/lyl/models/qwen2.5-7B",  # 替换为你的模型名
+        "prompt": prompt_text,
+        "max_tokens": 200,
+        "temperature": 0.7
+    }
+
+    try:
+        response = requests.post(url, headers=headers,
+                                 data=json.dumps(payload))
+        response.raise_for_status()  # 检查请求是否成功
+        result = response.json()
+        return result['choices'][0]['text']
+    except requests.exceptions.RequestException as e:
+        print(f"请求出错: {e}")
+        return None
+
+
+def get_vllm_inference(
+    prompt: str,
+    num_generations: int = 1,
+    model_name: str = "Qwen",
+    vllm_server_url: str = "http://localhost:8000",
+    max_tokens: int = 1024,
+    temperature: float = 0.7,
+    top_p: float = 0.95,
+    stop_sequences: Optional[List[str]] = None,
+) -> List[str]:
+    """
+    通过请求本地部署的vLLM服务（/v1/completions API）来获取文本生成结果。
+    此函数假设输入的prompt已经应用了chat template或其他必要的格式。
+    Args:
+        prompt (str): 输入的文本提示 (prompt)，此字符串应已包含模型所需的聊天模板格式。
+        num_responses (int): 需要生成的回答数量 (对应OpenAI API的 'n' 参数)。默认为1。
+        vllm_server_url (str): 本地vLLM服务的URL地址。默认为 "http://localhost:8000"。
+        max_tokens (int): 生成的最大token数量。默认为256。
+        temperature (float): 控制生成文本的随机性。较高的值会使输出更随机，较低的值会使输出更确定。默认为0.7。
+        top_p (float): 控制生成文本的多样性。只考虑累积概率达到top_p的token。默认为0.95。
+        stop_sequences (List[str], optional): 生成文本的停止序列列表。当模型生成到这些序列中的任何一个时，将停止生成。例如 ["\n", "###"]。默认为None。
+    Returns:
+        List[str]: 包含所有生成回答的字符串列表。如果请求失败或没有生成结果，则返回空列表。
+    """
+    generated_texts: List[str] = []
+
+    api_endpoint = f"{vllm_server_url}/v1/completions"
+    payload = {
+        "model": model_name,
+        "prompt": prompt,
+        "n": num_generations,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "top_p": top_p,
+        "stream": False,  # We want the full response at once
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    if stop_sequences:
+        payload["stop"] = stop_sequences
+    print(f"Requesting vLLM text completion at: {api_endpoint}")
+    try:
+        response = requests.post(
+            api_endpoint, headers=headers, json=payload, timeout=None)
+        response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
+        response_data = response.json()
+        if 'choices' in response_data:
+            for choice in response_data['choices']:
+                # Text completion response structure: choice['text']
+                if 'text' in choice:
+                    generated_texts.append(choice['text'])
+        else:
+            print(f"Error: No 'choices' found in response: {response_data}")
+    except requests.exceptions.Timeout:
+        print(f"Error: Request to vLLM server timed out after 120 seconds.")
+    except requests.exceptions.ConnectionError as e:
+        print(
+            f"Error: Could not connect to vLLM server at {vllm_server_url}. Is it running? Details: {e}")
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP Error: {e.response.status_code} - {e.response.text}")
+    except json.JSONDecodeError:
+        print(f"Error: Could not decode JSON response from vLLM server.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    return generated_texts
+
+
 if __name__ == "__main__":
     # sample_test()
     # reward_test()
     # compute_logprobs_test()
     # save_lora_weight()
-    # from dataset import GRPODataset
-    # tokenizer = AutoTokenizer.from_pretrained("/data/lyl/models/qwen2.5-7B")
-    # data_path = "/data/lyl/projs/PesticideRecipeGen/data/distill/distill_data_alpaca.json"
-    # dataset = GRPODataset(data_path, tokenizer)
+    from dataset import GRPODataset
+    tokenizer = AutoTokenizer.from_pretrained("/data/lyl/models/qwen2.5-7B")
+    data_path = "/data/lyl/projs/PesticideRecipeGen/data/distill/distill_data_alpaca.json"
+    dataset = GRPODataset(data_path, tokenizer)
     # print(get_vllm_inference(dataset[0], 8, max_tokens=1024))
-    show_model()
+    start_time = time.time()
+    response_text = get_vllm_inference(
+        dataset[0], 8, "/data/lyl/models/qwen2.5-7B", max_tokens=1024)
+    end_time = time.time()
+    if response_text:
+        print("模型回复:", response_text[0])
+    print(f"用时：{end_time-start_time}")

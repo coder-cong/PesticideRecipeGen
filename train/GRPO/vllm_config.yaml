@@ -6,7 +6,7 @@ port: 8000
 uvicorn-log-level: "info"
 dtype: "auto"
 quantization: "bitsandbytes"
-enforce-eager: False
+enforce-eager: True
 enable-lora: True
 # max_new_tokens: 128
 tensor-parallel-size: 2
