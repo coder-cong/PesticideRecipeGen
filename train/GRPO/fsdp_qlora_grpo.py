@@ -1,3 +1,4 @@
+from torch.distributed.fsdp import FullStateDictConfig, StateDictType
 from torch.distributed.fsdp.api import StateDictType, FullStateDictConfig
 import copy
 import functools
@@ -432,63 +433,11 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
 
     dist.barrier()
     torch.cuda.synchronize()
-    if rank == 0:
-        print(f"CUDA event elapsed time: {time_taken} sec")
-        logger.log({"time_taken": time_taken}, rank)
-    for line in memory_stats:
-        print(line)
 
     if rank == 0:
         print(f"rank:0保存模型测试")
     # End logging
     logger.finish(rank=rank)
-
-    # Save model - ref: https://github.com/pytorch/pytorch/issues/98823
-    # HQQLinear custom state_dict() method causes issues when saving.
-    # Model is saved fine when `state_dict()` method is removed.
-    # Non param/buffer types are not saved with FSDP.
-    # It might be better to just save the trained lora layers.
-    # summon_full_params on lora layers and save.
-    if args["save_model"]:
-        if rank == 0:
-            os.makedirs(args["output_dir"], exist_ok=True)
-        dist.barrier()
-        save_policy = FullStateDictConfig(offload_to_cpu=True, rank0_only=True)
-        if args["train_type"] in ["custom_lora", "custom_qlora", "hqq_lora", "hqq_dora", "bnb_dora", "bnb_llama_pro", "hqq_llama_pro"]:
-            cpu_state_dict = {}
-            if args["train_type"] in ["bnb_llama_pro", "hqq_llama_pro"]:
-                trainable_fsdp_modules = [
-                    (n, m) for n, m in model.named_modules() if n.endswith(tuple(new_layer_names))]
-            else:
-                trainable_fsdp_modules = [(n, m) for n, m in model.named_modules(
-                ) if n.endswith(('lora_AB', 'dora_layer', 'magnitude_layer'))]
-            for prefix, module in trainable_fsdp_modules:
-                prefix = (prefix.replace("_fsdp_wrapped_module.", "")
-                                .replace("_checkpoint_wrapped_module.", "")
-                                .replace("_offload_wrapped_module.", ""))
-                if args['verbose']:
-                    print(f"Saving {prefix}")
-                with FSDP.state_dict_type(module, StateDictType.FULL_STATE_DICT, save_policy):
-                    cpu_state_dict = {
-                        **cpu_state_dict, **{f"{prefix}.{k}": v for k, v in module.state_dict().items()}}
-                dist.barrier()
-                torch.cuda.synchronize()
-            if rank == 0:
-                print("Saving trained LoRA weights.")
-                save_file(cpu_state_dict, os.path.join(
-                    args["output_dir"], "model_state_dict.safetensors"))
-                print("Done", rank)
-        else:
-            with FSDP.state_dict_type(model, StateDictType.FULL_STATE_DICT, save_policy):
-                cpu_state_dict = model.state_dict()
-                if rank == 0:
-                    print("Saving full model weights.")
-                    save_file(cpu_state_dict, os.path.join(
-                        args["output_dir"], "model_state_dict.safetensors"))
-                    print("Done", rank)
-
-    dist.barrier()  # Stop other processes ending while model saving - probably not needed?
-    # save_lora_adapters_for_vllm(model, "qwen-7B-grpo-adapter", rank)
     # Synchronize at the start
     dist.barrier()
 
@@ -804,42 +753,7 @@ def fsdp_main(local_rank: int, world_size: int, args: Dict):
     # It might be better to just save the trained lora layers.
     # summon_full_params on lora layers and save.
     if args["save_model"]:
-        if rank == 0:
-            os.makedirs(args["output_dir"], exist_ok=True)
-        dist.barrier()
-        save_policy = FullStateDictConfig(offload_to_cpu=True, rank0_only=True)
-        if args["train_type"] in ["custom_lora", "custom_qlora", "hqq_lora", "hqq_dora", "bnb_dora", "bnb_llama_pro", "hqq_llama_pro"]:
-            cpu_state_dict = {}
-            if args["train_type"] in ["bnb_llama_pro", "hqq_llama_pro"]:
-                trainable_fsdp_modules = [
-                    (n, m) for n, m in model.named_modules() if n.endswith(tuple(new_layer_names))]
-            else:
-                trainable_fsdp_modules = [(n, m) for n, m in model.named_modules(
-                ) if n.endswith(('lora_AB', 'dora_layer', 'magnitude_layer'))]
-            for prefix, module in trainable_fsdp_modules:
-                prefix = (prefix.replace("_fsdp_wrapped_module.", "")
-                                .replace("_checkpoint_wrapped_module.", "")
-                                .replace("_offload_wrapped_module.", ""))
-                if args['verbose']:
-                    print(f"Saving {prefix}")
-                with FSDP.state_dict_type(module, StateDictType.FULL_STATE_DICT, save_policy):
-                    cpu_state_dict = {
-                        **cpu_state_dict, **{f"{prefix}.{k}": v for k, v in module.state_dict().items()}}
-                dist.barrier()
-                torch.cuda.synchronize()
-            if rank == 0:
-                print("Saving trained LoRA weights.")
-                save_file(cpu_state_dict, os.path.join(
-                    args["output_dir"], "model_state_dict.safetensors"))
-                print("Done", rank)
-        else:
-            with FSDP.state_dict_type(model, StateDictType.FULL_STATE_DICT, save_policy):
-                cpu_state_dict = model.state_dict()
-                if rank == 0:
-                    print("Saving full model weights.")
-                    save_file(cpu_state_dict, os.path.join(
-                        args["output_dir"], "model_state_dict.safetensors"))
-                    print("Done", rank)
+        model.module.save_pretrained(args["save_path"])
 
     dist.barrier()  # Stop other processes ending while model saving - probably not needed?
 
@@ -1665,132 +1579,96 @@ def get_vllm_inference(
 
 def save_lora_adapters_for_vllm(
     fsdp_model: FSDP,
-    save_path: str,
+    save_dir: str,
     rank: int,
+    verbose: bool = False,
 ):
     """
-    保存FSDP包装的PEFT QLoRA模型中的LoRA适配器权重，格式与vLLM兼容。
+    保存 FSDP 包装的 PEFT QLoRA 模型中的 LoRA 适配器权重，格式与 vLLM 兼容。
+    只保存 LoRA 权重和配置，不保存基模型或量化状态。
     Args:
-        fsdp_model (FSDP): 你的FSDP包装的PeftModelForCausalLM实例。
-        save_path (str): LoRA适配器权重文件的完整保存路径 (e.g., "path/to/adapter_model.safetensors")。
-        rank (int): 当前进程的全局rank。
+        fsdp_model (FSDP): FSDP 包装的 PeftModelForCausalLM 实例。
+        save_dir (str): 保存目录路径 (e.g., "qwen-7B-grpo-adapter")，将创建 adapter_model.safetensors 和 adapter_config.json。
+        rank (int): 当前进程的全局 rank。
+        verbose (bool): 是否打印详细日志。
     """
-    if rank == 0:
-        print(f"Rank {rank}: Preparing to save LoRA adapters to {save_path}")
-    # 配置FSDP的state_dict保存行为：完整状态字典，offload到CPU，只在rank 0收集
-    # `rank0_only=True` 是关键，它会确保只有rank 0会收集所有分片数据并构建完整的state_dict
-    save_policy = FullStateDictConfig(offload_to_cpu=True, rank0_only=True)
-    # 初始化一个空的字典来收集所有LoRA模块的状态
-    lora_cpu_state_dict = {}
-    # 遍历FSDP模型的命名模块
-    # 注意：这里的 `fsdp_model` 是顶层的 `FullyShardedDataParallel` 实例
-    for name, module in fsdp_model.named_modules():
-        # 你的结构显示 LoRA 参数在 lora.Linear4bit 内部
-        # 并且 LoRA 权重模块是 lora_A 和 lora_B
-        # 检查模块名称是否以 '.lora_A' 或 '.lora_B' 结尾
-        # 并且其父模块是 'lora.Linear4bit'
-        # 简单的方法是查找 `lora_A` 和 `lora_B` 子模块
-        # 或者更直接地，查找包含 `.lora_A.` 或 `.lora_B.` 的路径
-        if (".lora_A." in name or ".lora_B." in name) and "base_layer" not in name:
-            # 这里的 name 会是类似：
-            # model.layers.0._fsdp_wrapped_module._checkpoint_wrapped_module.self_attn.q_proj.lora_A.default._fsdp_wrapped_module
-            # 我们需要捕获 `lora_A.default.weight` 或者 `lora_B.default.weight` 这样的键
-            # PEFT 通常希望的键名是 `base_model.model.layers.0.self_attn.q_proj.lora_A.default.weight`
-            # 所以我们需要清理FSDP和_checkpoint_wrapped_module等无关前缀
+    if rank == 0 and verbose:
+        print(f"Rank {rank}: Preparing to save LoRA adapters to {save_dir}")
 
-            # 剥离FSDP和CheckpointWrapper的冗余前缀
-            # 从 `name` 中识别出真正的模块路径
+    # 配置 FSDP 的 state_dict 保存行为：完整状态字典，offload 到 CPU，只在 rank 0 收集
+    save_policy = FullStateDictConfig(offload_to_cpu=True, rank0_only=True)
+
+    # 初始化一个空的字典来收集所有 LoRA 模块的状态
+    lora_cpu_state_dict = {}
+
+    # 提取 PEFT 配置（考虑到 FSDP 和激活检查点包装）
+    try:
+        peft_config = fsdp_model._fsdp_wrapped_module._checkpoint_wrapped_module.peft_config
+    except AttributeError:
+        if rank == 0:
+            print(
+                f"Rank {rank}: Warning - Could not find peft_config. Skipping adapter_config.json save.")
+        peft_config = None
+
+    # 遍历 FSDP 模型的命名模块
+    for name, module in fsdp_model.named_modules():
+        # 匹配 PEFT LoRA 的叶子模块路径（e.g., ...q_proj.lora_A.default）
+        if (".lora_A.default" in name or ".lora_B.default" in name) and "base_layer" not in name:
+            # 清理键名前缀，确保 vLLM 兼容（去除 FSDP/Checkpoint 包装、"base_model."、"model." 和 ".default"）
             cleaned_name = (
                 name.replace("_fsdp_wrapped_module.", "")
                 .replace("_checkpoint_wrapped_module.", "")
-                .replace("base_model.", "")  # 如果base_model是外部包裹的
+                .replace("_offload_wrapped_module.", "")  # 如果启用 CPU offload
+                .replace("base_model.", "")
+                .replace("model.", "")  # PEFT 常有 base_model.model 前缀
+                .replace(".default", "")
             )
-            # 找到 lora_A 或 lora_B 所在的 `module`
-            # 由于 FSDP 内部的 `lora_A` 和 `lora_B` 已经是 FSDP 的叶子模块（被FSDP包裹了），
-            # 我们可以直接对这些 FSDP 模块调用 `state_dict`。
-            # 示例中的结构显示 lora_A 和 lora_B 内部又有一个 FSDP
-            # lora_A: ModuleDict((default): FullyShardedDataParallel(...))
-            # 所以我们需要找到这个内部的 FSDP 模块
-            # module 此时是 lora.Linear4bit 的子模块，例如 lora_A 的 ModuleDict
-            # 我们需要访问 ModuleDict 里的 'default' 项，它才是 FSDP 实例
+            # 构建最终键（添加 .weight，因为 state_dict 中键为 'weight'）
+            final_key = f"{cleaned_name}.weight"
 
-            # 检查当前 module 是否是 FullyShardedDataParallel 实例
-            # 如果是，那么它就是我们要收集其权重的LoRA A或B矩阵
-            # 名字类似 `model.layers.0.self_attn.q_proj.lora_A.default`
+            # 检查模块是否是 FSDP 实例（叶子 nn.Linear）
             if isinstance(module, FSDP):
-                # 构建用于保存的键名
-                # 例如 `model.layers.0.self_attn.q_proj.lora_A.default.weight`
-                # 但是PEFT期望的格式是 `base_model_model.layers.0.self_attn.q_proj.lora_A.weight`
-                # 实际上vLLM加载LoRA需要的是 `adapter_model.safetensors` 文件，里面的键名
-                # PEFT内部保存时会去除 `base_model.model` 前缀，只保留 `model.layers.0...`
-                # 并且 LoRA 的 weight 是直接作为 `lora_A.weight` 而不是 `lora_A.default.weight`
-                # 所以我们期望的最终键名是 `model.layers.0.self_attn.q_proj.lora_A.weight`
-                # 移除 FSDP 相关和 `default` 模块dict的名称
-                final_key_prefix = (
-                    name.replace("_fsdp_wrapped_module.", "")
-                    .replace("_checkpoint_wrapped_module.", "")
-                    .replace("base_model.", "")  # 如果PeftModel外面还有一层base_model
-                    .replace(".default", "")  # 移除 ModuleDict 的 'default'
-                    .replace(".lora_A", ".lora_A.weight")  # 直接定位到权重
-                    .replace(".lora_B", ".lora_B.weight")
-                    # for LoRA-Dora/Linear4bit
-                    .replace(".lora_magnitude_vector", ".lora_magnitude_vector.weight")
-                )
-                # 使用FSDP的state_dict_type上下文管理器来获取完整状态字典
+                if verbose:
+                    print(
+                        f"Rank {rank}: Collecting LoRA parameter: {final_key}")
+                # 使用 FSDP 的 state_dict_type 上下文获取完整状态字典
                 with FSDP.state_dict_type(module, StateDictType.FULL_STATE_DICT, save_policy):
-                    # 只有rank 0会收到完整的状态字典（因为rank0_only=True）
-                    if rank == 0:
-                        module_state_dict = module.state_dict()
-                        if 'weight' in module_state_dict:  # LoRA A/B 矩阵通常是 'weight'
-                            lora_cpu_state_dict[final_key_prefix] = module_state_dict['weight']
-                            # print(f"Rank {rank}: Collected LoRA parameter: {final_key_prefix}")
-                        elif 'bias' in module_state_dict:  # 如果有bias，虽然LoRA通常没有
-                            lora_cpu_state_dict[final_key_prefix] = module_state_dict['bias']
-                            # print(f"Rank {rank}: Collected LoRA parameter: {final_key_prefix}")
-                        elif 'lora_magnitude_vector' in final_key_prefix:  # for LoRA-Dora / magnitude_layer
-                            # This is a bit tricky, the structure implies lora_magnitude_vector is also a ModuleDict
-                            # so it would be similar to lora_A.default.weight
-                            # or the correct key
-                            lora_cpu_state_dict[final_key_prefix] = module_state_dict['weight']
-                            # print(f"Rank {rank}: Collected LoRA parameter: {final_key_prefix}")
-        # 针对 PEFT 额外的 bias 参数 (如果有的话, 比如 lora_bias)
-        # 你的结构中没有明确显示 lora_bias，但如果你的 LoRA 配置有 `bias="all"` 或 `bias="lora_only"` 可能会有
-        # if ".bias_layer." in name and isinstance(module, FSDP):
-        #     cleaned_name = (
-        #         name.replace("_fsdp_wrapped_module.", "")
-        #         .replace("_checkpoint_wrapped_module.", "")
-        #         .replace("base_model.", "")
-        #         .replace(".default", "") # Assuming it's inside a ModuleDict
-        #     )
-        #     final_key = f"{cleaned_name}.bias" # Assuming bias parameter is named 'bias'
-        #     with FSDP.state_dict_type(module, StateDictType.FULL_STATE_DICT, save_policy):
-        #         if rank == 0:
-        #             lora_cpu_state_dict[final_key] = module.state_dict()['bias']
-        #             print(f"Rank {rank}: Collected LoRA bias: {final_key}")
+                    module_state_dict = module.state_dict()
+                    # 只取 LoRA 权重（假设无 bias）
+                    if 'weight' in module_state_dict:
+                        lora_cpu_state_dict[final_key] = module_state_dict['weight']
+                    else:
+                        if rank == 0 and verbose:
+                            print(
+                                f"Rank {rank}: No 'weight' found in {final_key}. Skipping.")
 
-    # 确保所有进程都同步，以避免竞争条件
+    # 确保所有进程同步
     dist.barrier()
-    torch.cuda.synchronize()  # 确保CUDA操作完成
+    torch.cuda.synchronize()
+
     if rank == 0:
         if lora_cpu_state_dict:
             # 确保保存目录存在
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)
-            # 使用 safetensors 格式保存，这是 vLLM 推荐的方式
-            try:
-                from safetensors.torch import save_file
-                save_file(lora_cpu_state_dict, save_path)
-                print(
-                    f"Rank {rank}: Successfully saved LoRA adapters to {save_path}")
-            except ImportError:
-                print("`safetensors` not found. Falling back to `torch.save`.")
-                torch.save(lora_cpu_state_dict, save_path)
-                print(
-                    f"Rank {rank}: Successfully saved LoRA adapters to {save_path} using torch.save")
-            except Exception as e:
-                print(f"Rank {rank}: Error saving LoRA adapters: {e}")
+            os.makedirs(save_dir, exist_ok=True)
+            # 保存 LoRA 权重为 safetensors（vLLM 兼容）
+            safetensors_path = os.path.join(
+                save_dir, "adapter_model.safetensors")
+            save_file(lora_cpu_state_dict, safetensors_path)
+            if verbose:
+                print(f"Rank {rank}: Saved LoRA weights to {safetensors_path}")
+
+            # 保存 PEFT 配置为 adapter_config.json
+            if peft_config is not None:
+                config_path = os.path.join(save_dir, "adapter_config.json")
+                with open(config_path, "w", encoding="utf-8") as f:
+                    json.dump(peft_config.to_dict(), f,
+                              indent=4, ensure_ascii=False)
+                if verbose:
+                    print(
+                        f"Rank {rank}: Saved adapter_config.json to {config_path}")
         else:
             print(
-                f"Rank {rank}: No LoRA state dict found to save. Double check module naming and FSDP wrapping.")
+                f"Rank {rank}: No LoRA state dict found to save. Check if LoRA layers are correctly wrapped.")
 
     dist.barrier()  # 最终同步
 

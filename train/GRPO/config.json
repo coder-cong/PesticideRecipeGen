@@ -32,6 +32,8 @@
     "group": null,
     "entity": null,
     "data_path": "/data/lyl/projs/PesticideRecipeGen/data/distill/distill_data_alpaca.json",
+    "save_path": "/data/lyl/qwen-7B-grpo-adapter",
+    "save_interval": 10,
     "dataset": "alpaca_sample",
     "dataset_samples": 512,
     "context_length": 512,

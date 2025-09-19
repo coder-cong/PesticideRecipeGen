@@ -353,13 +353,20 @@ def get_vllm_inference(
     return generated_texts
 
 
+def show_model():
+    with open("/data/lyl/model_structure.txt", "r", encoding="utf-8") as f:
+        s = json.load(f)
+        print(s)
+
+
 if __name__ == "__main__":
     # sample_test()
     # reward_test()
     # compute_logprobs_test()
     # save_lora_weight()
-    from dataset import GRPODataset
-    tokenizer = AutoTokenizer.from_pretrained("/data/lyl/models/qwen2.5-7B")
-    data_path = "/data/lyl/projs/PesticideRecipeGen/data/distill/distill_data_alpaca.json"
-    dataset = GRPODataset(data_path, tokenizer)
-    print(get_vllm_inference(dataset[0], 8, max_tokens=1024))
+    # from dataset import GRPODataset
+    # tokenizer = AutoTokenizer.from_pretrained("/data/lyl/models/qwen2.5-7B")
+    # data_path = "/data/lyl/projs/PesticideRecipeGen/data/distill/distill_data_alpaca.json"
+    # dataset = GRPODataset(data_path, tokenizer)
+    # print(get_vllm_inference(dataset[0], 8, max_tokens=1024))
+    show_model()

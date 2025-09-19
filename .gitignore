@@ -182,3 +182,8 @@ cython_debug/
 process_out
 
 logs
+# 缓存目录
+cache
+output
+data
+model
